@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "356148378224",
+    "project_id": "univolve-project",
+    "storage_bucket": "univolve-project.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:356148378224:android:139b0745076f3d34e4d2b5",
+        "android_client_info": {
+          "package_name": "com.example.univolve_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCRI_peAobIt5gXb6lekxNk_lA85ApAHv8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
