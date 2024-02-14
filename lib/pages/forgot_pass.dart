@@ -16,17 +16,17 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       _isLoading = true;
     });
     try {
-      var signInMethods =
-          await _auth.fetchSignInMethodsForEmail(_emailController.text.trim());
-      if (signInMethods.isEmpty) {
+      await _auth.sendPasswordResetEmail(email: _emailController.text.trim());
+      // Success: Show a success dialog
+      _showDialog(
+          'Success', 'Password reset email sent. Please check your inbox.');
+    } catch (error) {
+      if ((error as FirebaseAuthException).code == 'user-not-found') {
         _showDialog('Error', 'No user found for that email.');
       } else {
-        await _auth.sendPasswordResetEmail(email: _emailController.text.trim());
-        _showDialog(
-            'Success', 'Password reset email sent. Please check your inbox.');
+        // Show the error itself
+        _showDialog('Error', error.toString());
       }
-    } catch (error) {
-      _showDialog('Error', 'An error occurred. Please try again later.');
     } finally {
       setState(() {
         _isLoading = false;
