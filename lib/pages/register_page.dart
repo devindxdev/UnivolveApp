@@ -67,7 +67,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-                'Student ID is already in use by $existingEmail.Please either login using that or contact support.'),
+                'Student ID is already in use by $existingEmail. Please either login using that or contact support.'),
             backgroundColor: Colors.grey[900],
           ),
         );
