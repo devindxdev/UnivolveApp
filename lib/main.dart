@@ -1,8 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:univolve_app/pages/auth_page.dart';
-import 'package:univolve_app/pages/login_page.dart';
-import 'package:univolve_app/pages/register_page.dart';
+import 'package:univolve_app/pages/AllAuthPages/auth_page.dart';
+import 'package:univolve_app/pages/AllAuthPages/login_page.dart';
+import 'package:univolve_app/pages/AllAuthPages/register_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 void main() async {

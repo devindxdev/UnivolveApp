@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:univolve_app/assets/univolve_icons_icons.dart';
+import 'package:univolve_app/pages/eventspage.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -61,20 +62,7 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     ),
-    Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text('Welcome to the events page'),
-          MaterialButton(
-            onPressed: () {
-              FirebaseAuth.instance.signOut();
-            },
-            child: Text('Sign Out'),
-          ),
-        ],
-      ),
-    ),
+    EventsPage(),
     Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

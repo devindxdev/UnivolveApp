@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:univolve_app/pages/homepage.dart';
-import 'package:univolve_app/pages/login_page.dart';
-import 'package:univolve_app/pages/switch_login_reg.dart';
+import 'package:univolve_app/pages/AllAuthPages/login_page.dart';
+import 'package:univolve_app/pages/AllAuthPages/switch_login_reg.dart';
 
 class AuthPage extends StatelessWidget {
   @override

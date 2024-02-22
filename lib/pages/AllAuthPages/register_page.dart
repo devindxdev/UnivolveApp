@@ -43,7 +43,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Please fill in all fields'),
-          backgroundColor: Colors.red,
+          backgroundColor: Colors.grey[900],
         ),
       );
       return; // Stop the function execution if any field is empty

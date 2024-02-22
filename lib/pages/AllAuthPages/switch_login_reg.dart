@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:univolve_app/pages/login_page.dart';
-import 'package:univolve_app/pages/register_page.dart';
+import 'package:univolve_app/pages/AllAuthPages/login_page.dart';
+import 'package:univolve_app/pages/AllAuthPages/register_page.dart';
 
 class SwitchLoginReg extends StatefulWidget {
   @override

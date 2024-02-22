@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:univolve_app/pages/forgot_pass.dart';
+import 'package:univolve_app/pages/AllAuthPages/forgot_pass.dart';
 import 'package:univolve_app/pages/homepage.dart';
-import 'package:univolve_app/pages/register_page.dart';
+import 'package:univolve_app/pages/AllAuthPages/register_page.dart';
 
 class LoginScreen extends StatefulWidget {
   final VoidCallback showRegisterPage;
