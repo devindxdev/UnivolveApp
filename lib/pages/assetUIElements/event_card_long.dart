@@ -52,7 +52,7 @@ class _EventCardState extends State<EventCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Image.asset(
+          Image.network(
             widget.imagePath,
             height: 100.0,
             fit: BoxFit.cover,

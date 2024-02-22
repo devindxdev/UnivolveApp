@@ -13,16 +13,18 @@ class EventsPage extends StatefulWidget {
 class _EventsPageState extends State<EventsPage> {
   final List<EventCard> eventCards = [
     EventCard(
-      imagePath: 'lib/assets/images/demobackground.png',
+      imagePath:
+          'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/demobackground.png',
       title: 'Meet The Profs: Computer Science Club',
       date: 'February 13, 2024',
       time: '6:00 - 9:00',
       location: 'OM 1330',
       likeCount: 34,
-      type: 'sports',
+      type: 'acedemic',
     ),
     EventCard(
-      imagePath: 'lib/assets/images/demobackground.png',
+      imagePath:
+          'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/acedemic.png',
       title: 'Music Jam: TRUSU',
       date: 'March 5, 2024',
       time: '7:00 - 10:00',
@@ -31,7 +33,18 @@ class _EventsPageState extends State<EventsPage> {
       type: 'entertainment',
     ),
     EventCard(
-      imagePath: 'lib/assets/images/demobackground.png',
+      imagePath:
+          'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/acedemic.png',
+      title: 'Basketball Tournament: TCC',
+      date: 'March 5, 2024',
+      time: '7:00 - 10:00',
+      location: 'The Amphitheatre',
+      likeCount: 18,
+      type: 'sports',
+    ),
+    EventCard(
+      imagePath:
+          'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/demobackground.png',
       title: 'ABC Restaurant, McGill Road',
       date: 'Student Special',
       time: '',
@@ -40,7 +53,8 @@ class _EventsPageState extends State<EventsPage> {
       type: 'advertisement',
     ),
     EventCard(
-      imagePath: 'lib/assets/images/demobackground.png',
+      imagePath:
+          'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/demobackground.png',
       title: 'Supply Chain Seminar',
       date: 'February 13, 2024',
       time: '6:00 - 9:00',
