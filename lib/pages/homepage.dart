@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:univolve_app/assets/univolve_icons_icons.dart';
+import 'package:univolve_app/pages/assetUIElements/drawer.dart';
 import 'package:univolve_app/pages/eventspage.dart';
 
 class HomePage extends StatefulWidget {
@@ -11,11 +13,58 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 2;
+  String userName = "Loading..."; // Default text
+
+  var userDetail;
+
+  @override
+  void initState() {
+    final user = FirebaseAuth.instance.currentUser;
+    userDetail = user?.email;
+    fetchUserName();
+
+    super.initState();
+  }
 
   // Create a getter to obtain the user's email or a default string
   String get userEmail {
     final user = FirebaseAuth.instance.currentUser;
     return user?.email ?? "Not signed in";
+  }
+
+  void fetchUserName() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      // Assuming you use the user's UID to store and fetch user data
+      // If you're using email or another field, adjust the query accordingly
+      final usersCollection = FirebaseFirestore.instance.collection('users');
+      final querySnapshot = await usersCollection
+          .where('email',
+              isEqualTo: user
+                  .email) // Adjust based on how you relate a user document to the FirebaseAuth user
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        final userDoc = querySnapshot.docs.first;
+        final universityId = userDoc.data()['universityId'] as String;
+
+        // Now fetch the actual document using universityId
+        final universityDoc = await usersCollection.doc(universityId).get();
+        final name = universityDoc.data()?['name'] ?? "No name available";
+
+        setState(() {
+          userName = name;
+        });
+      } else {
+        setState(() {
+          userName = "User not found";
+        });
+      }
+    } else {
+      setState(() {
+        userName = "Not signed in";
+      });
+    }
   }
 
   //list of pages
@@ -111,69 +160,7 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: Color(0xff016D77),
           elevation: 0,
         ),
-        drawer: Drawer(
-          backgroundColor: Color(0xff84C5BE),
-          child: ListView(
-            children: <Widget>[
-              DrawerHeader(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: <Color>[
-                      Color(0xff016D77),
-                      Color(0xff84C5BE),
-                    ],
-                  ),
-                ),
-                child: Column(
-                  children: <Widget>[
-                    CircleAvatar(
-                      radius: 40,
-                      backgroundImage: AssetImage('assets/images/profile.jpg'),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Text(
-                      "$userEmail ",
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              ListTile(
-                title: Text('Profile'),
-                leading: Icon(UnivolveIcons.profile),
-                onTap: () {
-                  Navigator.pushNamed(context, '/profile');
-                },
-              ),
-              ListTile(
-                title: Text('Settings'),
-                leading: Icon(Icons.settings),
-                onTap: () {
-                  Navigator.pushNamed(context, '/settings');
-                },
-              ),
-              ListTile(
-                title: Text('About'),
-                leading: Icon(Icons.info),
-                onTap: () {
-                  Navigator.pushNamed(context, '/about');
-                },
-              ),
-              ListTile(
-                title: Text('Sign Out'),
-                leading: Icon(Icons.exit_to_app),
-                onTap: () {
-                  FirebaseAuth.instance.signOut();
-                },
-              ),
-            ],
-          ),
-        ),
+        drawer: UserDrawer(),
         body: _pages[_selectedIndex],
         bottomNavigationBar: Container(
           decoration: BoxDecoration(
