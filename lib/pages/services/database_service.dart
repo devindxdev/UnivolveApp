@@ -27,4 +27,23 @@ class UserService {
       return "Error fetching name";
     }
   }
+
+  Future<Map<String, dynamic>> fetchUserDetails() async {
+    final user = _auth.currentUser;
+    if (user == null) return {"error": "Not signed in"};
+
+    try {
+      final querySnapshot = await _firestore
+          .collection('users')
+          .where('email', isEqualTo: user.email)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) return {"error": "User not found"};
+
+      final userDoc = querySnapshot.docs.first.data();
+      return userDoc; // This is already a Map<String, dynamic>
+    } catch (e) {
+      return {"error": "Error fetching user details"};
+    }
+  }
 }

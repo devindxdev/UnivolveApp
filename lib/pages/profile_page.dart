@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:univolve_app/pages/services/database_service.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -15,6 +16,17 @@ class _ProfilePageState extends State<ProfilePage> {
   final TextStyle _textStyleSubtitle = GoogleFonts.poppins(
     fontSize: 14,
   );
+  final UserService _userService = UserService();
+
+  @override
+  void initState() {
+    // print user details when the page is loaded
+    _userService.fetchUserDetails().then((userDetails) {
+      print(userDetails);
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
