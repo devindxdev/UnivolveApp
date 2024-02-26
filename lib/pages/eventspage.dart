@@ -14,17 +14,17 @@ class _EventsPageState extends State<EventsPage> {
   final List<EventCard> eventCards = [
     EventCard(
       imagePath:
-          'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/demobackground.png',
+          'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/academic.png',
       title: 'Meet The Profs: Computer Science Club',
       date: 'February 13, 2024',
       time: '6:00 - 9:00',
       location: 'OM 1330',
       likeCount: 34,
-      type: 'acedemic',
+      type: 'academic',
     ),
     EventCard(
       imagePath:
-          'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/acedemic.png',
+          'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/entertainment.png',
       title: 'Music Jam: TRUSU',
       date: 'March 5, 2024',
       time: '7:00 - 10:00',
@@ -34,7 +34,7 @@ class _EventsPageState extends State<EventsPage> {
     ),
     EventCard(
       imagePath:
-          'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/acedemic.png',
+          'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/sports.png',
       title: 'Basketball Tournament: TCC',
       date: 'March 5, 2024',
       time: '7:00 - 10:00',
@@ -44,7 +44,7 @@ class _EventsPageState extends State<EventsPage> {
     ),
     EventCard(
       imagePath:
-          'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/demobackground.png',
+          'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/advertisement.png',
       title: 'ABC Restaurant, McGill Road',
       date: 'Student Special',
       time: '',
@@ -54,7 +54,7 @@ class _EventsPageState extends State<EventsPage> {
     ),
     EventCard(
       imagePath:
-          'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/demobackground.png',
+          'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/academic.png',
       title: 'Supply Chain Seminar',
       date: 'February 13, 2024',
       time: '6:00 - 9:00',
