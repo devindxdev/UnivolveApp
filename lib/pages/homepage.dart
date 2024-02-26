@@ -5,6 +5,7 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:univolve_app/assets/univolve_icons_icons.dart';
 import 'package:univolve_app/pages/assetUIElements/drawer.dart';
 import 'package:univolve_app/pages/eventspage.dart';
+import 'package:univolve_app/pages/profile_page.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -14,6 +15,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 2;
   String userName = "Loading..."; // Default text
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   var userDetail;
 
@@ -112,27 +114,25 @@ class _HomePageState extends State<HomePage> {
       ),
     ),
     EventsPage(),
-    Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text('Welcome to the profile page: $userEmail'),
-          MaterialButton(
-            onPressed: () {
-              FirebaseAuth.instance.signOut();
-            },
-            child: Text('Sign Out'),
-          ),
-        ],
-      ),
-    ),
+    ProfilePage(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        key: _scaffoldKey,
         appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(
+              Icons.grid_4x4,
+              color: Colors.white,
+            ), // Custom icon
+            onPressed: () {
+              // Open the drawer
+              _scaffoldKey.currentState?.openDrawer();
+            },
+          ),
           title: Text(
             'U N I V O L V E',
             style: TextStyle(
