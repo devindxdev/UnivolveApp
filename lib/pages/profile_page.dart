@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:univolve_app/pages/UserProfile/edit_profile.dart';
 import 'package:univolve_app/pages/services/database_service.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:pretty_qr_code/pretty_qr_code.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -36,11 +38,40 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() {});
   }
 
+  void _showQrCodeDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Center(child: Text(userDetails!['username'] ?? 'Error')),
+          titleTextStyle: GoogleFonts.poppins(
+            color: Colors.black,
+            fontSize: 24,
+            fontWeight: FontWeight.w600,
+          ),
+          // content: Container(
+          //   child:
+          content: PrettyQrView.data(
+            data: userDetails!['universityId'] ?? 'Error',
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // If userDetails is null, show a loading indicator
     if (userDetails == null) {
-      return Center(
+      return const Center(
           child: Column(
         children: [
           CircularProgressIndicator(),
@@ -59,7 +90,7 @@ class _ProfilePageState extends State<ProfilePage> {
               backgroundImage: NetworkImage(userDetails!['photoUrl'] ??
                   'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/defaultProfilePhoto.png'),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               userDetails!['username'] ?? 'New User',
               style: GoogleFonts.poppins(
@@ -81,9 +112,9 @@ class _ProfilePageState extends State<ProfilePage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 GestureDetector(
-                  onTap: () {
-                    // Add action for registering
-                  },
+                  onTap:
+                      // Add action for sharing profile
+                      () => _showQrCodeDialog(context),
                   child: Container(
                     child: Row(
                       children: [

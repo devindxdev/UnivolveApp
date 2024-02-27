@@ -133,22 +133,6 @@ class _HomePageState extends State<HomePage> {
               _scaffoldKey.currentState?.openDrawer();
             },
           ),
-          title: Text(
-            'U N I V O L V E',
-            style: TextStyle(
-              fontFamily: 'Poppins',
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
-              color: Colors.white,
-            ),
-          ),
-          // leading: IconButton(
-          //   icon:
-          //       Icon(Icons.menu, color: Colors.white), // Custom icon and color
-          //   onPressed: () {
-          //     Scaffold.of(context).openDrawer();
-          //   },
-          // ),
           actions: [
             IconButton(
               icon: Icon(Icons.search),
