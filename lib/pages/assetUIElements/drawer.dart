@@ -13,11 +13,13 @@ class UserDrawer extends StatefulWidget {
 class _UserDrawerState extends State<UserDrawer> {
   final UserService _userService = UserService();
   String userName = "Loading...";
+  String profileImg = "";
 
   @override
   void initState() {
     super.initState();
     _fetchUserName();
+    _fetchProfileImg();
   }
 
   void _fetchUserName() async {
@@ -25,10 +27,16 @@ class _UserDrawerState extends State<UserDrawer> {
     setState(() => userName = name);
   }
 
+  void _fetchProfileImg() async {
+    final img = await _userService.fetchProfileImg();
+    setState(() => profileImg = img);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: Color(0xff84C5BE),
+      backgroundColor: Colors.grey[200],
+      // backgroundColor: Color(0xff84C5BE),
       child: ListView(
         // The ListView here contains all the children directly, no nested ListView
         children: <Widget>[
@@ -45,8 +53,7 @@ class _UserDrawerState extends State<UserDrawer> {
               children: <Widget>[
                 CircleAvatar(
                   radius: 40,
-                  backgroundImage: NetworkImage(
-                      'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/defaultProfilePhoto.png'),
+                  backgroundImage: NetworkImage(profileImg),
                 ),
                 SizedBox(
                   height: 10,

@@ -28,6 +28,29 @@ class UserService {
     }
   }
 
+  Future<String> fetchProfileImg() async {
+    final user = _auth.currentUser;
+    if (user == null) return "Not signed in";
+
+    try {
+      final querySnapshot = await _firestore
+          .collection('users')
+          .where('email', isEqualTo: user.email)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) return "User not found";
+
+      final userDoc = querySnapshot.docs.first;
+      final universityId = userDoc['universityId'] as String;
+      final universityDoc =
+          await _firestore.collection('users').doc(universityId).get();
+
+      return universityDoc['photoUrl'] ?? '';
+    } catch (e) {
+      return "";
+    }
+  }
+
   Future<Map<String, dynamic>> fetchUserDetails() async {
     final user = _auth.currentUser;
     if (user == null) return {"error": "Not signed in"};
