@@ -125,8 +125,8 @@ class _HomePageState extends State<HomePage> {
         appBar: AppBar(
           leading: IconButton(
             icon: Icon(
-              Icons.grid_4x4,
-              color: Colors.white,
+              Icons.menu,
+              color: Colors.black,
             ), // Custom icon
             onPressed: () {
               // Open the drawer
@@ -152,12 +152,12 @@ class _HomePageState extends State<HomePage> {
           actions: [
             IconButton(
               icon: Icon(Icons.search),
-              color: Colors.white,
+              color: Colors.black,
               onPressed: () {},
             ),
           ],
           centerTitle: true,
-          backgroundColor: Color(0xff016D77),
+          backgroundColor: Colors.transparent,
           elevation: 0,
         ),
         drawer: UserDrawer(),

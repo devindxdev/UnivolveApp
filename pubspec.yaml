@@ -41,6 +41,7 @@ dependencies:
   google_nav_bar: ^5.0.6
   google_fonts: ^6.1.0
   url_launcher: ^6.0.9
+  flutter_native_splash: ^2.3.10
 
   
 
@@ -99,3 +100,12 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+#splash screen
+flutter_native_splash:
+  color: "#016D77"
+  background_image: "lib/assets/images/splash.png"
+  web: false
+  android_12:
+    color: "#016D77"
+    

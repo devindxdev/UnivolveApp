@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:univolve_app/pages/UserProfile/edit_profile.dart';
 import 'package:univolve_app/pages/services/database_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -16,19 +18,37 @@ class _ProfilePageState extends State<ProfilePage> {
   final TextStyle _textStyleSubtitle = GoogleFonts.poppins(
     fontSize: 14,
   );
+
+  // Create an instance of the UserService class
   final UserService _userService = UserService();
+  Map<String, dynamic>? userDetails;
 
   @override
   void initState() {
-    // print user details when the page is loaded
-    _userService.fetchUserDetails().then((userDetails) {
-      print(userDetails);
-    });
     super.initState();
+    fetchAndSetUserDetails();
+    //print user details
+    print(userDetails);
+  }
+
+  void fetchAndSetUserDetails() async {
+    userDetails = await _userService.fetchUserDetails();
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    // If userDetails is null, show a loading indicator
+    if (userDetails == null) {
+      return Center(
+          child: Column(
+        children: [
+          CircularProgressIndicator(),
+          SizedBox(height: 16),
+          Text('Loading details...'),
+        ],
+      ));
+    }
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -36,11 +56,12 @@ class _ProfilePageState extends State<ProfilePage> {
             SizedBox(height: 24),
             CircleAvatar(
               radius: 80,
-              backgroundImage: NetworkImage('URL_TO_YOUR_IMAGE'),
+              backgroundImage: NetworkImage(userDetails!['photoUrl'] ??
+                  'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/defaultProfilePhoto.png'),
             ),
             SizedBox(height: 16),
             Text(
-              'Jimil Hingu',
+              userDetails!['username'] ?? 'New User',
               style: GoogleFonts.poppins(
                 fontWeight: FontWeight.w700,
                 fontSize: 24,
@@ -49,7 +70,7 @@ class _ProfilePageState extends State<ProfilePage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
               child: Text(
-                'Computer Science major with a passion for coding & innovation. Exploring the intersection of technology and creativity.',
+                userDetails!['bio'] ?? 'Bio not available',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
                   fontSize: 16,
@@ -87,14 +108,20 @@ class _ProfilePageState extends State<ProfilePage> {
                 SizedBox(width: 8),
                 GestureDetector(
                   onTap: () {
-                    // Add action for registering
+                    // Add action for customizing bio
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            EditProfilePage(userData: userDetails!),
+                      ),
+                    );
                   },
                   child: Container(
                     child: Row(
                       children: [
                         Icon(Icons.edit, color: Colors.white),
                         SizedBox(width: 8),
-                        Text('Customize Bio',
+                        Text('Customize Profile',
                             style: GoogleFonts.poppins(
                                 color: Colors.white,
                                 fontSize: 12.0,
@@ -117,57 +144,33 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Column(
                 children: [
                   ListTile(
-                    title: Text('Program', style: _textStyleTitle),
-                    subtitle: Text('Bachelor of Science in Computer Science',
-                        style: _textStyleSubtitle),
-                  ),
+                      title: Text('Program', style: _textStyleTitle),
+                      subtitle: Text(
+                          userDetails!['program'] ?? 'Program not available',
+                          style: _textStyleSubtitle)),
                   ListTile(
                     title: Text('Current Courses', style: _textStyleTitle),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text('CSC 110 - Introduction to Computer Programming',
-                            style: _textStyleSubtitle),
-                        Text('CSC 220 - Data Structures and Algorithms',
-                            style: _textStyleSubtitle),
-                        Text('CSC 310 - Operating Systems',
-                            style: _textStyleSubtitle),
-                        Text('CSC 400 - Artificial Intelligence',
-                            style: _textStyleSubtitle),
-                      ],
+                      children:
+                          _buildCourseList(userDetails!['currentCourses']),
                     ),
                   ),
                   ListTile(
                     title: Text('Interests', style: _textStyleTitle),
                     subtitle: Text(
-                      '#MachineLearning #CyberSecurity #OpenSource #CloudComputing',
+                      userDetails!['interests'] ?? '',
                       style: _textStyleSubtitle,
                     ),
                   ),
+                  // Display the social media handles
                   ListTile(
-                    title: Text('Social Media Handles', style: _textStyleTitle),
-                    subtitle: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: <Widget>[
-                        IconButton(
-                          icon: Icon(Icons.linked_camera),
-                          onPressed: () {
-                            // Add action for LinkedIn
-                          },
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.camera_alt),
-                          onPressed: () {
-                            // Add action for Instagram
-                          },
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.question_answer),
-                          onPressed: () {
-                            // Add action for other social media
-                          },
-                        ),
-                      ],
+                    title: Text('Social Media Handles'),
+                    subtitle: Wrap(
+                      spacing: 8.0, // Gap between adjacent chips.
+                      runSpacing: 4.0, // Gap between lines.
+                      children:
+                          _buildSocialIcons(userDetails!['socialMediaHandles']),
                     ),
                   ),
                 ],
@@ -177,5 +180,60 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ),
     );
+  }
+
+  List<Widget> _buildCourseList(Map? courses) {
+    // If courses is null or not a map, return empty list
+    if (courses == null || courses is! Map) {
+      return [Text('No courses available,style: _textStyleSubtitle')];
+    }
+
+    List<Widget> courseList = [];
+    courses.forEach((key, value) {
+      courseList.add(Text('$key - $value', style: _textStyleSubtitle));
+    });
+    return courseList;
+  }
+
+  List<Widget> _buildSocialIcons(Map? handles) {
+    List<Widget> iconList = [];
+    handles?.forEach((key, value) {
+      if (value != null && value.toString().isNotEmpty) {
+        IconData iconData = _getSocialIcon(key);
+        iconList.add(
+          GestureDetector(
+            onTap: () => _launchURL(value.toString()),
+            child: Icon(iconData),
+          ),
+        );
+      }
+    });
+    return iconList;
+  }
+
+  IconData _getSocialIcon(String key) {
+    switch (key) {
+      case 'LinkedIn':
+        return Icons.linked_camera; // Replace with actual LinkedIn icon
+      case 'Instagram':
+        return Icons.camera_alt; // Replace with actual Instagram icon
+      case 'Github':
+        return Icons.code; // Replace with actual Github icon
+      // Add more cases for different social media
+      default:
+        return Icons.web; // Default icon for unknown social media
+    }
+  }
+
+  void _launchURL(String urlString) async {
+    final Uri url = Uri.parse(urlString);
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      // Handle the error or show a message if unable to launch URL
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Could not launch $urlString'),
+        ),
+      );
+    }
   }
 }

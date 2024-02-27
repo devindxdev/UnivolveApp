@@ -45,7 +45,8 @@ class _UserDrawerState extends State<UserDrawer> {
               children: <Widget>[
                 CircleAvatar(
                   radius: 40,
-                  backgroundImage: AssetImage('assets/images/'),
+                  backgroundImage: NetworkImage(
+                      'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/defaultProfilePhoto.png'),
                 ),
                 SizedBox(
                   height: 10,
