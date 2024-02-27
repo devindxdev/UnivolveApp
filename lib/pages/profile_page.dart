@@ -90,7 +90,7 @@ class _ProfilePageState extends State<ProfilePage> {
               backgroundImage: NetworkImage(userDetails!['photoUrl'] ??
                   'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/defaultProfilePhoto.png'),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 15),
             Text(
               userDetails!['username'] ?? 'New User',
               style: GoogleFonts.poppins(
@@ -99,7 +99,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 0),
               child: Text(
                 userDetails!['bio'] ?? 'Bio not available',
                 textAlign: TextAlign.center,
@@ -108,6 +108,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
             ),
+            const SizedBox(height: 15),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
