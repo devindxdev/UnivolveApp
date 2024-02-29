@@ -45,7 +45,7 @@ class UserService {
       final universityDoc =
           await _firestore.collection('users').doc(universityId).get();
 
-      return universityDoc['photoUrl'] ?? '';
+      return universityDoc['photoUrl'] ?? 'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/defaultProfilePhoto.png';
     } catch (e) {
       return "";
     }
