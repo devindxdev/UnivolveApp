@@ -1,120 +1,148 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:univolve_app/pages/assetUIElements/event_card_long.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:univolve_app/pages/assetUIElements/event_card_long.dart'; // Make sure the path matches your EventCard widget
 
 class EventsPage extends StatefulWidget {
-  const EventsPage({super.key});
+  const EventsPage({Key? key}) : super(key: key);
 
   @override
   State<EventsPage> createState() => _EventsPageState();
 }
 
 class _EventsPageState extends State<EventsPage> {
-  final List<EventCard> eventCards = [
-    EventCard(
-      imagePath:
-          'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/academic.png',
-      title: 'Meet The Profs: Computer Science Club',
-      date: 'February 13, 2024',
-      time: '6:00 - 9:00',
-      location: 'OM 1330',
-      likeCount: 34,
-      type: 'academic',
-    ),
-    EventCard(
-      imagePath:
-          'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/entertainment.png',
-      title: 'Music Jam: TRUSU',
-      date: 'March 5, 2024',
-      time: '7:00 - 10:00',
-      location: 'The Amphitheatre',
-      likeCount: 58,
-      type: 'entertainment',
-    ),
-    EventCard(
-      imagePath:
-          'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/sports.png',
-      title: 'Basketball Tournament: TCC',
-      date: 'March 5, 2024',
-      time: '7:00 - 10:00',
-      location: 'The Amphitheatre',
-      likeCount: 18,
-      type: 'sports',
-    ),
-    EventCard(
-      imagePath:
-          'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/advertisement.png',
-      title: 'ABC Restaurant, McGill Road',
-      date: 'Student Special',
-      time: '',
-      location: 'Show your ID, get 10% off meals!',
-      likeCount: 22,
-      type: 'advertisement',
-    ),
-    EventCard(
-      imagePath:
-          'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/academic.png',
-      title: 'Supply Chain Seminar',
-      date: 'February 13, 2024',
-      time: '6:00 - 9:00',
-      location: 'IB 1330',
-      likeCount: 13,
-      type: 'academic',
-    ),
+  final ScrollController _scrollController = ScrollController();
+  List<DocumentSnapshot> eventDocuments = [];
+  bool isMoreDataAvailable = true;
+  DocumentSnapshot? lastDocument;
+  final int pageSize = 10; // Adjust pageSize as needed
+  List<String> monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    print(Timestamp.fromDate(DateTime(2024, 2, 13)));
+    _fetchInitialData();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        _fetchMoreData();
+      }
+    });
+  }
+
+  Future<void> _fetchInitialData() async {
+    var query = FirebaseFirestore.instance
+        .collection('events')
+        .orderBy('date') // Assuming there is a 'date' field to sort by
+        .limit(pageSize);
+
+    var querySnapshot = await query.get();
+    var documents = querySnapshot.docs;
+
+    if (documents.isNotEmpty) {
+      setState(() {
+        lastDocument = documents.last;
+        eventDocuments = documents;
+        isMoreDataAvailable = documents.length == pageSize;
+      });
+    }
+  }
+
+  Future<void> _fetchMoreData() async {
+    if (!isMoreDataAvailable) return;
+
+    var query = FirebaseFirestore.instance
+        .collection('events')
+        .orderBy('date')
+        .startAfterDocument(lastDocument!)
+        .limit(pageSize);
+
+    var querySnapshot = await query.get();
+    var documents = querySnapshot.docs;
+
+    if (documents.isNotEmpty) {
+      setState(() {
+        lastDocument = documents.last;
+        eventDocuments.addAll(documents);
+        isMoreDataAvailable = documents.length == pageSize;
+      });
+    }
+  }
+
+  String formatTimestampToString(Timestamp timestamp) {
+    DateTime dateTime = timestamp.toDate();
+    List<String> monthNames = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ];
+
+    // Format: "Month day, year" (e.g., "February 13, 2024")
+    String formattedDate =
+        "${monthNames[dateTime.month - 1]} ${dateTime.day}, ${dateTime.year}";
+    return formattedDate;
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 5.0, top: 12.0),
-              child: Text(
-                'Trending Events',
-                style: GoogleFonts.poppins(
-                  fontSize: 24.0,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            Container(
-              height: 208.0,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: eventCards.length,
-                itemBuilder: (context, index) {
-                  return Container(
-                    width: 300.0, // Set your desired width here
-                    child: eventCards[index],
-                  );
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 5.0, top: 12.0),
-              child: Text(
-                'Explore More',
-                style: GoogleFonts.poppins(
-                  fontSize: 24.0,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: eventCards.length,
-                itemBuilder: (context, index) {
-                  return eventCards[index];
-                },
-              ),
-            ),
-          ],
-        ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Events', style: GoogleFonts.poppins()),
       ),
+      body: eventDocuments.isEmpty
+          ? Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              controller: _scrollController,
+              itemCount: eventDocuments.length +
+                  1, // Add one for the loading indicator at the bottom
+              itemBuilder: (context, index) {
+                if (index == eventDocuments.length) {
+                  // Return loading indicator at the bottom
+                  return isMoreDataAvailable
+                      ? Center(child: CircularProgressIndicator())
+                      : Container();
+                }
+                var data = eventDocuments[index].data() as Map<String, dynamic>;
+                return EventCard(
+                  imagePath: data['imagePath'],
+                  title: data['title'],
+                  date: formatTimestampToString(data['date']),
+                  time: data['time'],
+                  location: data['location'],
+                  likeCount: data['likeCount'] ?? 0,
+                  type: data['type'],
+                );
+              },
+            ),
     );
   }
 }
