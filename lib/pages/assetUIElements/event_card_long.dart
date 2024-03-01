@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:univolve_app/pages/PagesWithin/event_detail_page.dart';
 
 class EventCard extends StatefulWidget {
   final String imagePath;
@@ -9,6 +10,7 @@ class EventCard extends StatefulWidget {
   final String location;
   final int likeCount;
   final String type;
+  final String documentId;
 
   EventCard({
     required this.imagePath,
@@ -18,6 +20,7 @@ class EventCard extends StatefulWidget {
     required this.location,
     required this.likeCount,
     required this.type,
+    required this.documentId,
   });
 
   @override
@@ -52,10 +55,13 @@ class _EventCardState extends State<EventCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Image.network(
-            widget.imagePath,
-            height: 100.0,
-            fit: BoxFit.cover,
+          Hero(
+            tag: 'eventImage-${widget.documentId}',
+            child: Image.network(
+              widget.imagePath,
+              height: 100.0,
+              fit: BoxFit.cover,
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(16.0),

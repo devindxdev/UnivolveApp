@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:univolve_app/pages/PagesWithin/event_detail_page.dart';
 import 'package:univolve_app/pages/assetUIElements/event_card_long.dart'; // Make sure the path matches your EventCard widget
 
 class EventsPage extends StatefulWidget {
@@ -132,14 +133,26 @@ class _EventsPageState extends State<EventsPage> {
                       : Container();
                 }
                 var data = eventDocuments[index].data() as Map<String, dynamic>;
-                return EventCard(
-                  imagePath: data['imagePath'],
-                  title: data['title'],
-                  date: formatTimestampToString(data['date']),
-                  time: data['time'],
-                  location: data['location'],
-                  likeCount: data['likeCount'] ?? 0,
-                  type: data['type'],
+                return GestureDetector(
+                  onTap: () {
+                    // Add navigation to the event details page
+                    Navigator.push(context, MaterialPageRoute(builder: (_) {
+                      return EventDetailsPage(
+                        documentId: eventDocuments[index].id,
+                        imagePath: data['imagePath'],
+                      );
+                    }));
+                  },
+                  child: EventCard(
+                    imagePath: data['imagePath'],
+                    title: data['title'],
+                    date: formatTimestampToString(data['date']),
+                    time: data['time'],
+                    location: data['location'],
+                    likeCount: data['likeCount'] ?? 0,
+                    type: data['type'],
+                    documentId: eventDocuments[index].id,
+                  ),
                 );
               },
             ),
