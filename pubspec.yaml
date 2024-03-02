@@ -47,6 +47,7 @@ dependencies:
   image_picker: ^1.0.7
   firebase_storage: ^11.6.6
   swipeable_button_view: ^0.0.2
+  shared_preferences: ^2.2.2
 
   
 

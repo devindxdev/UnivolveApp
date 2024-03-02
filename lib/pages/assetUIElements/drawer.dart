@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:univolve_app/assets/univolve_icons_icons.dart';
 import 'package:univolve_app/pages/services/database_service.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -11,7 +12,6 @@ class UserDrawer extends StatefulWidget {
 }
 
 class _UserDrawerState extends State<UserDrawer> {
-  final UserService _userService = UserService();
   String userName = "Loading...";
   String profileImg = "";
 
@@ -22,14 +22,27 @@ class _UserDrawerState extends State<UserDrawer> {
     _fetchProfileImg();
   }
 
-  void _fetchUserName() async {
-    final name = await _userService.fetchUserName();
-    setState(() => userName = name);
+  Future<void> _fetchUserName() async {
+    final prefs = await SharedPreferences.getInstance();
+    // Use a default value or return null if the key doesn't exist
+    final fetchedUserName = prefs.getString('username') ?? '';
+    if (mounted) {
+      setState(() {
+        userName = fetchedUserName;
+      });
+    }
   }
 
-  void _fetchProfileImg() async {
-    final img = await _userService.fetchProfileImg();
-    setState(() => profileImg = img);
+  Future<void> _fetchProfileImg() async {
+    final prefs = await SharedPreferences.getInstance();
+    // Use a default value or return null if the key doesn't exist
+    final fetchedProfileImg = prefs.getString('photoUrl') ??
+        'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/defaultProfilePhoto.png';
+    if (mounted) {
+      setState(() {
+        profileImg = fetchedProfileImg;
+      });
+    }
   }
 
   @override

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +8,7 @@ import 'package:univolve_app/assets/univolve_icons_icons.dart';
 import 'package:univolve_app/pages/assetUIElements/drawer.dart';
 import 'package:univolve_app/pages/eventspage.dart';
 import 'package:univolve_app/pages/profile_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -17,56 +20,45 @@ class _HomePageState extends State<HomePage> {
   String userName = "Loading..."; // Default text
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  var userDetail;
-
   @override
   void initState() {
-    final user = FirebaseAuth.instance.currentUser;
-    userDetail = user?.email;
-    fetchUserName();
-
+    fetchUserDataAndPreferences();
     super.initState();
   }
 
-  // Create a getter to obtain the user's email or a default string
-  String get userEmail {
-    final user = FirebaseAuth.instance.currentUser;
-    return user?.email ?? "Not signed in";
-  }
-
-  void fetchUserName() async {
+  Future<void> fetchUserDataAndPreferences() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      // Assuming you use the user's UID to store and fetch user data
-      // If you're using email or another field, adjust the query accordingly
       final usersCollection = FirebaseFirestore.instance.collection('users');
-      final querySnapshot = await usersCollection
-          .where('email',
-              isEqualTo: user
-                  .email) // Adjust based on how you relate a user document to the FirebaseAuth user
-          .get();
+      final querySnapshot =
+          await usersCollection.where('email', isEqualTo: user.email).get();
 
       if (querySnapshot.docs.isNotEmpty) {
-        final userDoc = querySnapshot.docs.first;
-        final universityId = userDoc.data()['universityId'] as String;
-
-        // Now fetch the actual document using universityId
-        final universityDoc = await usersCollection.doc(universityId).get();
-        final name = universityDoc.data()?['name'] ?? "No name available";
-
-        setState(() {
-          userName = name;
-        });
-      } else {
-        setState(() {
-          userName = "User not found";
-        });
+        final userData = querySnapshot.docs.first.data();
+        await updateUserPreferences(userData); // Update SharedPreferences
       }
-    } else {
-      setState(() {
-        userName = "Not signed in";
-      });
     }
+  }
+
+  Future<void> updateUserPreferences(Map<String, dynamic> userData) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Convert currentCourses and socialMediaHandles to JSON strings
+    final currentCoursesJson = jsonEncode(userData['currentCourses']);
+    final socialMediaHandlesJson = jsonEncode(userData['socialMediaHandles']);
+
+    // Store each attribute in SharedPreferences
+    await prefs.setString('bio', userData['bio']);
+    await prefs.setString('currentCourses', currentCoursesJson);
+    await prefs.setString('email', userData['email']);
+    await prefs.setString('interests', userData['interests']);
+    await prefs.setStringList(
+        'likedEvents', List<String>.from(userData['likedEvents']));
+    await prefs.setString('photoUrl', userData['photoUrl']);
+    await prefs.setString('program', userData['program']);
+    await prefs.setString('socialMediaHandles', socialMediaHandlesJson);
+    await prefs.setString('universityId', userData['universityId']);
+    await prefs.setString('username', userData['username']);
   }
 
   //list of pages
