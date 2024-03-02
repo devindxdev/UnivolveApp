@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swipeable_button_view/swipeable_button_view.dart';
 
 class EventDetailsPage extends StatefulWidget {
@@ -20,6 +21,8 @@ class EventDetailsPage extends StatefulWidget {
 bool _hasLiked = false;
 final String _userId =
     FirebaseAuth.instance.currentUser!.uid; // Assuming user is logged in
+String? universityId;
+bool _isSubscribedForNotifications = false;
 
 class _EventDetailsPageState extends State<EventDetailsPage> {
   String formatTimestampToString(Timestamp timestamp) {
@@ -45,6 +48,15 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     return formattedDate;
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _fetchUniversityId().then((_) {
+      checkIfUserHasLikedEvent();
+      checkIfUserIsSubscribedForNotifications();
+    });
+  }
+
   String getStartTime(String time) {
     List<String> parts = time.split(" - ");
     return parts[0]; // Return anything before "-"
@@ -55,44 +67,103 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     return parts.length > 1 ? parts[1] : "TBD"; // Return anything after "-"
   }
 
-  @override
-  void initState() {
-    super.initState();
-    checkIfUserHasLikedEvent();
+  Future<void> _fetchUniversityId() async {
+    final prefs = await SharedPreferences.getInstance();
+    // Use a default value or return null if the key doesn't exist
+    setState(() {
+      universityId = prefs.getString('universityId') ?? '';
+    });
+  }
+
+  void checkIfUserIsSubscribedForNotifications() async {
+    if (universityId == null || universityId!.isEmpty) {
+      return;
+    }
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(universityId)
+        .get();
+    List notificationEvents = userDoc['notificationEvents'] ?? [];
+    setState(() {
+      _isSubscribedForNotifications =
+          notificationEvents.contains(widget.documentId);
+    });
+  }
+
+  void toggleEventNotificationSubscription() {
+    if (universityId == null || universityId!.isEmpty) {
+      return;
+    }
+    if (_isSubscribedForNotifications) {
+      // Unsubscribe from event notifications
+      FirebaseFirestore.instance.collection('users').doc(universityId).update({
+        'notificationEvents': FieldValue.arrayRemove([widget.documentId])
+      });
+      FirebaseFirestore.instance
+          .collection('events')
+          .doc(widget.documentId)
+          .update({
+        'notifyUsers': FieldValue.arrayRemove([universityId]),
+      });
+    } else {
+      // Subscribe to event notifications
+      FirebaseFirestore.instance.collection('users').doc(universityId).update({
+        'notificationEvents': FieldValue.arrayUnion([widget.documentId])
+      });
+      FirebaseFirestore.instance
+          .collection('events')
+          .doc(widget.documentId)
+          .update({
+        'notifyUsers': FieldValue.arrayUnion([universityId]),
+      });
+    }
+    setState(() {
+      _isSubscribedForNotifications = !_isSubscribedForNotifications;
+    });
   }
 
   void checkIfUserHasLikedEvent() async {
-    DocumentSnapshot userDoc =
-        await FirebaseFirestore.instance.collection('users').doc(_userId).get();
-    List likedEvents = userDoc['likedEvents'];
+    if (universityId == null || universityId!.isEmpty) {
+      // Handle the case where universityId is not available
+      return;
+    }
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(universityId)
+        .get();
+    List likedEvents = userDoc['likedEvents'] ?? [];
     setState(() {
       _hasLiked = likedEvents.contains(widget.documentId);
     });
   }
 
   void toggleLikeEvent() {
+    if (universityId == null || universityId!.isEmpty) {
+      // Handle the case where universityId is not available
+      return;
+    }
     if (_hasLiked) {
       // Unliking the event
-      FirebaseFirestore.instance.collection('users').doc(_userId).update({
+      FirebaseFirestore.instance.collection('users').doc(universityId).update({
         'likedEvents': FieldValue.arrayRemove([widget.documentId])
       });
       FirebaseFirestore.instance
           .collection('events')
           .doc(widget.documentId)
           .update({
-        'likedBy': FieldValue.arrayRemove([_userId]),
+        'likedBy': FieldValue.arrayRemove([universityId]),
         'likeCount': FieldValue.increment(-1)
       });
     } else {
       // Liking the event
-      FirebaseFirestore.instance.collection('users').doc(_userId).update({
+      FirebaseFirestore.instance.collection('users').doc(universityId).update({
         'likedEvents': FieldValue.arrayUnion([widget.documentId])
       });
       FirebaseFirestore.instance
           .collection('events')
           .doc(widget.documentId)
           .update({
-        'likedBy': FieldValue.arrayUnion([_userId]),
+        'likedBy': FieldValue.arrayUnion([universityId]),
         'likeCount': FieldValue.increment(1)
       });
     }
@@ -275,13 +346,35 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                       ),
                       SizedBox(height: 200),
                       SwipeableButtonView(
-                        onFinish: () {},
-                        onWaitingProcess: () {},
+                        onFinish: () {
+                          // Show Snackbar on finish
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                  "The event has been added to your list."),
+                            ),
+                          );
+                          // Update UI state to reflect the cancel button
+                          setState(() {
+                            _isSubscribedForNotifications = true;
+                          });
+                        },
+                        onWaitingProcess: () =>
+                            toggleEventNotificationSubscription(),
                         activeColor: const Color(0xff016D77),
-                        buttonWidget: const Icon(Icons.notification_add,
-                            color: Color(0xff016D77), size: 30),
-                        buttonText: "Notify Me for this Event",
-                      ),
+                        buttonWidget: _isSubscribedForNotifications
+                            ? const Icon(Icons.cancel,
+                                color: Colors.red,
+                                size:
+                                    30) // Show cancel icon if already subscribed
+                            : const Icon(Icons.notification_add,
+                                color: Color(0xff016D77),
+                                size:
+                                    30), // Show add notification icon otherwise
+                        buttonText: _isSubscribedForNotifications
+                            ? "Unsubscribe from Notifications"
+                            : "Notify Me for this Event",
+                      )
                     ],
                   ),
                 ),
