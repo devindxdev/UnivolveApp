@@ -131,6 +131,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
           var data = snapshot.data!.data() as Map<String, dynamic>;
           String title = data['title'];
           String date = formatTimestampToString(data['date']);
+          // Split the time into start and end time
           String startTime = getStartTime(data['time']);
           String endTime = getEndTime(data['time']);
           String location = data['location'];
