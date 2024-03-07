@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:univolve_app/pages/PagesWithin/ai_bot.dart';
 import 'package:univolve_app/pages/PagesWithin/event_detail_page.dart';
 import 'package:univolve_app/pages/assetUIElements/event_card_long.dart'; // Make sure the path matches your EventCard widget
 
@@ -16,7 +17,7 @@ class _EventsPageState extends State<EventsPage> {
   List<DocumentSnapshot> eventDocuments = [];
   bool isMoreDataAvailable = true;
   DocumentSnapshot? lastDocument;
-  final int pageSize = 10; // Adjust pageSize as needed
+  final int pageSize = 10;
   List<String> monthNames = [
     "January",
     "February",
@@ -118,6 +119,17 @@ class _EventsPageState extends State<EventsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Events', style: GoogleFonts.poppins()),
+        actions: [
+          IconButton(
+            onPressed: () {
+              // Add navigation to new page
+              Navigator.push(context, MaterialPageRoute(builder: (_) {
+                return ChatBot();
+              }));
+            },
+            icon: Icon(Icons.help_outline),
+          ),
+        ],
       ),
       body: eventDocuments.isEmpty
           ? Center(child: CircularProgressIndicator())
@@ -136,12 +148,6 @@ class _EventsPageState extends State<EventsPage> {
                 return GestureDetector(
                   onTap: () {
                     // Add navigation to the event details page
-                    Navigator.push(context, MaterialPageRoute(builder: (_) {
-                      return EventDetailsPage(
-                        documentId: eventDocuments[index].id,
-                        imagePath: data['imagePath'],
-                      );
-                    }));
                   },
                   child: EventCard(
                     imagePath: data['imagePath'],

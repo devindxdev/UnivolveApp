@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:univolve_app/assets/univolve_icons_icons.dart';
+import 'package:univolve_app/pages/PagesWithin/search_user_page.dart';
 import 'package:univolve_app/pages/assetUIElements/drawer.dart';
 import 'package:univolve_app/pages/eventspage.dart';
 import 'package:univolve_app/pages/profile_page.dart';
@@ -129,7 +130,13 @@ class _HomePageState extends State<HomePage> {
             IconButton(
               icon: Icon(Icons.search),
               color: Colors.black,
-              onPressed: () {},
+              onPressed: () {
+                // Add navigation to new page using navigator
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SearchUserPage()),
+                );
+              },
             ),
           ],
           centerTitle: true,

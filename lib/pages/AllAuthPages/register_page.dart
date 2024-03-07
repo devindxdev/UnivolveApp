@@ -115,6 +115,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'username': usernameController.text.trim(),
         'email': emailController.text.trim(),
         'universityId': universityIdController.text.trim(),
+        'photoUrl':
+            'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/defaultProfilePhoto.png',
+        'bio': "No bio provided yet..",
+        'currentCourses': {},
+        'interests': "",
+        'likedEvents': [],
+        'notificationEvents': [],
+        'program': "Not Choosen Yet",
+        'socialMediaHandles': {
+          'Github': "",
+          'Instagram': "",
+          'LinkedIn': "",
+          'Website': "",
+        },
       });
       print("User details added successfully");
     } catch (e) {

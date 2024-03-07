@@ -28,6 +28,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   late TextEditingController _instagramController;
 
   List<String> programOptions = [
+    'Not Choosen Yet',
     'Diploma Computer Science',
     'Bachelor of Computer Science'
   ];
@@ -42,6 +43,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         TextEditingController(text: widget.userData['username']);
     _programController =
         TextEditingController(text: widget.userData['program']);
+    // TextEditingController(text: widget.userData['program']);
     _linkedinController = TextEditingController(
         text: widget.userData['socialMediaHandles']['LinkedIn']);
     _githubController = TextEditingController(

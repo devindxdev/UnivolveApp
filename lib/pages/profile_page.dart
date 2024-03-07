@@ -191,13 +191,13 @@ class _ProfilePageState extends State<ProfilePage> {
                   ListTile(
                     title: Text('Interests', style: _textStyleTitle),
                     subtitle: Text(
-                      userDetails!['interests'] ?? '',
+                      userDetails!['interests'] ?? 'No interests provided',
                       style: _textStyleSubtitle,
                     ),
                   ),
                   // Display the social media handles
                   ListTile(
-                    title: Text('Social Media Handles'),
+                    title: Text('Social Media Handles', style: _textStyleTitle),
                     subtitle: Wrap(
                       spacing: 8.0, // Gap between adjacent chips.
                       runSpacing: 4.0, // Gap between lines.
@@ -217,7 +217,7 @@ class _ProfilePageState extends State<ProfilePage> {
   List<Widget> _buildCourseList(Map? courses) {
     // If courses is null or not a map, return empty list
     if (courses == null || courses is! Map) {
-      return [Text('No courses available,style: _textStyleSubtitle')];
+      return [Text('No courses available', style: _textStyleSubtitle)];
     }
 
     List<Widget> courseList = [];
@@ -239,6 +239,9 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         );
       }
+      if (iconList.isEmpty)
+        iconList
+            .add(Text('No social media provided', style: _textStyleSubtitle));
     });
     return iconList;
   }
