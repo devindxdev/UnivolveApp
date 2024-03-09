@@ -1,8 +1,10 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -177,140 +179,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
       appBar: AppBar(
         title: Text('Edit Profile',
             style: GoogleFonts.poppins(color: Colors.black)),
-      ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: EdgeInsets.all(16.0),
-          children: <Widget>[
-            SizedBox(height: 24),
-            Center(
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 80,
-                    backgroundImage: NetworkImage(widget.userData['photoUrl'] ??
-                        'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/defaultProfilePhoto.png'),
-                  ),
-                  SizedBox(width: 16),
-                  GestureDetector(
-                    onTap: uploadImage,
-                    child: Container(
-                      child: Row(
-                        children: [
-                          Icon(Icons.edit, color: Colors.white),
-                          SizedBox(width: 8),
-                          Text('Change Image',
-                              style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontSize: 12.0,
-                                  fontWeight: FontWeight.w500)),
-                        ],
-                      ),
-                      padding: EdgeInsets.symmetric(
-                          vertical: 12.0, horizontal: 16.0),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: Color(0xff016D77),
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              style: GoogleFonts.poppins(),
-              controller: _usernameController,
-              decoration: InputDecoration(labelText: 'Username'),
-              validator: (value) {
-                if (value!.trim().isEmpty) {
-                  return 'Username cannot be empty';
-                }
-                return null;
-              },
-            ),
-            DropdownButtonFormField<String>(
-              decoration: InputDecoration(
-                labelText: 'Select Program',
-              ),
-              value: _programController.text,
-              onChanged: (String? value) {
-                setState(() {
-                  _programController.text = value ?? '';
-                });
-              },
-              items: programOptions.map((String option) {
-                return DropdownMenuItem<String>(
-                  value: option,
-                  child: Text(option, style: GoogleFonts.poppins()),
-                );
-              }).toList(),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please select a program';
-                }
-                return null;
-              },
-            ),
-            TextFormField(
-              controller: _bioController,
-              // Your TextEditingController
-              decoration: InputDecoration(
-                labelText: 'Bio',
-              ),
-              style: GoogleFonts.poppins(),
-
-              maxLines: 5, // Allows for multiple lines
-              keyboardType: TextInputType
-                  .multiline, // Sets the keyboard for multiline input
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Bio cannot be empty';
-                }
-                return null;
-              },
-            ),
-            TextFormField(
-              controller: _interestsController,
-              decoration: InputDecoration(labelText: 'Interests'),
-              style: GoogleFonts.poppins(),
-              maxLines: 2, // Allows for multiple lines
-              keyboardType: TextInputType.multiline, //
-              validator: (value) {
-                if (value!.trim().isEmpty) {
-                  return 'Interests cannot be empty';
-                }
-                return null;
-              },
-            ),
-            TextFormField(
-              controller: _linkedinController,
-              decoration: InputDecoration(labelText: 'LinkedIn (Optional)'),
-            ),
-            TextFormField(
-              controller: _githubController,
-              decoration: InputDecoration(labelText: 'Github (Optional)'),
-            ),
-            TextFormField(
-              controller: _websiteController,
-              decoration: InputDecoration(labelText: 'Website (Optional)'),
-            ),
-            TextFormField(
-              controller: _instagramController,
-              decoration: InputDecoration(labelText: 'Instagram (Optional)'),
-            ),
-            SizedBox(height: 24.0),
-            GestureDetector(
-              onTap: _saveProfile,
+        actions: [
+          GestureDetector(
+            onTap: _saveProfile,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
               child: Container(
-                child: Text('Update Profile',
-                    style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.w600)),
-                padding: EdgeInsets.symmetric(vertical: 16.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text('Update Profile',
+                      style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: 10.0,
+                          fontWeight: FontWeight.w600)),
+                ),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: Color(0xff016D77),
@@ -318,8 +200,186 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
+      body: Form(
+        key: _formKey,
+        child: ListView(padding: EdgeInsets.all(16.0), children: <Widget>[
+          SizedBox(height: 24),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Color(0xffEDF6F9),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Center(
+                child: Column(
+                  children: [
+                    CircleAvatar(
+                      radius: 80,
+                      backgroundImage: NetworkImage(widget
+                              .userData['photoUrl'] ??
+                          'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/defaultProfilePhoto.png'),
+                    ),
+                    SizedBox(height: 16),
+                    GestureDetector(
+                      onTap: uploadImage,
+                      child: Container(
+                        width: 170,
+                        child: Row(
+                          children: [
+                            Icon(Icons.edit, color: Colors.white),
+                            SizedBox(width: 8),
+                            Text('Change Image',
+                                style: GoogleFonts.poppins(
+                                    color: Colors.white,
+                                    fontSize: 12.0,
+                                    fontWeight: FontWeight.w500)),
+                          ],
+                        ),
+                        padding: EdgeInsets.symmetric(
+                            vertical: 8.0, horizontal: 16.0),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Color(0xff016D77),
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(width: 8),
+          TextFormField(
+            style: GoogleFonts.poppins(),
+            controller: _usernameController,
+            decoration: InputDecoration(labelText: 'Username'),
+            validator: (value) {
+              if (value!.trim().isEmpty) {
+                return 'Username cannot be empty';
+              }
+              return null;
+            },
+          ),
+          DropdownButtonFormField<String>(
+            decoration: InputDecoration(
+              labelText: 'Select Program',
+            ),
+            value: _programController.text,
+            onChanged: (String? value) {
+              setState(() {
+                _programController.text = value ?? '';
+              });
+            },
+            items: programOptions.map((String option) {
+              return DropdownMenuItem<String>(
+                value: option,
+                child: Text(option, style: GoogleFonts.poppins()),
+              );
+            }).toList(),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please select a program';
+              }
+              return null;
+            },
+          ),
+          TextFormField(
+            controller: _bioController,
+            // Your TextEditingController
+            decoration: InputDecoration(
+              labelText: 'Bio',
+            ),
+            style: GoogleFonts.poppins(),
+
+            maxLines: 5, // Allows for multiple lines
+            keyboardType: TextInputType
+                .multiline, // Sets the keyboard for multiline input
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return 'Bio cannot be empty';
+              }
+              return null;
+            },
+          ),
+          TextFormField(
+            controller: _interestsController,
+            decoration: InputDecoration(labelText: 'Interests'),
+            style: GoogleFonts.poppins(),
+            maxLines: 2, // Allows for multiple lines
+            keyboardType: TextInputType.multiline, //
+            validator: (value) {
+              if (value!.trim().isEmpty) {
+                return 'Interests cannot be empty';
+              }
+              return null;
+            },
+          ),
+          Row(
+            children: [
+              Icon(Icons.link, color: Colors.grey),
+              SizedBox(width: 8),
+              Expanded(
+                child: TextFormField(
+                  controller: _linkedinController,
+                  decoration: InputDecoration(labelText: 'LinkedIn (Optional)'),
+                ),
+              ),
+            ],
+          ),
+          Row(children: [
+            Icon(Icons.link, color: Colors.grey),
+            SizedBox(width: 8),
+            Expanded(
+              child: TextFormField(
+                controller: _githubController,
+                decoration: InputDecoration(labelText: 'Github (Optional)'),
+              ),
+            ),
+          ]),
+          Row(children: [
+            Icon(Icons.link, color: Colors.grey),
+            SizedBox(width: 8),
+            Expanded(
+              child: TextFormField(
+                controller: _websiteController,
+                decoration: InputDecoration(labelText: 'Website (Optional)'),
+              ),
+            ),
+          ]),
+          Row(children: [
+            Icon(Icons.link, color: Colors.grey),
+            SizedBox(width: 8),
+            Expanded(
+              child: TextFormField(
+                controller: _instagramController,
+                decoration: InputDecoration(labelText: 'Instagram (Optional)'),
+              ),
+            ),
+          ]),
+          SizedBox(height: 24.0),
+          GestureDetector(
+            onTap: _saveProfile,
+            child: Container(
+              child: Text('Update Profile',
+                  style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.w600)),
+              padding: EdgeInsets.symmetric(vertical: 16.0),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Color(0xff016D77),
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+            ),
+          ),
+        ]),
       ),
     );
   }
