@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:univolve_app/pages/PagesWithin/ai_bot.dart';
 import 'package:univolve_app/pages/PagesWithin/event_detail_page.dart';
@@ -18,6 +21,7 @@ class _EventsPageState extends State<EventsPage> {
   bool isMoreDataAvailable = true;
   DocumentSnapshot? lastDocument;
   final int pageSize = 10;
+
   List<String> monthNames = [
     "January",
     "February",
@@ -36,13 +40,76 @@ class _EventsPageState extends State<EventsPage> {
   @override
   void initState() {
     super.initState();
-    print(Timestamp.fromDate(DateTime(2024, 2, 13)));
+    // uploadEventsFromJson();
     _fetchInitialData();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
         _fetchMoreData();
       }
+    });
+  }
+
+  Future<String> loadJsonData(String path) async {
+    return await rootBundle.loadString(path);
+  }
+
+//push events to firestore
+  Future<void> pushEventsToFirestore(List eventsList) async {
+    final CollectionReference eventsCollection =
+        FirebaseFirestore.instance.collection('events');
+
+    for (var eventJson in eventsList) {
+      // Attempt to parse the "date" field to DateTime
+      DateTime? parsedDate;
+      try {
+        String dateString = eventJson["date"];
+        // Adjust the parsing logic based on your actual date format
+        // Here, it's assumed your date format might include timezone information
+        int utcIndex = dateString.indexOf(" UTC");
+        if (utcIndex != -1) {
+          String toParse =
+              dateString.substring(0, utcIndex).replaceAll(" at ", " ");
+          parsedDate = DateTime.parse(toParse);
+        }
+      } catch (e) {
+        print("Error parsing date: $e");
+        // Use current time as fallback
+        parsedDate = DateTime.now();
+      }
+
+      Map<String, dynamic> eventMap = {
+        "title": eventJson["title"],
+        "date": parsedDate, // Using parsed DateTime object
+        "description": eventJson["description"],
+        "imagePath": eventJson["imagePath"],
+        "likeCount": eventJson["likeCount"],
+        "likedBy": eventJson["likedBy"],
+        "location": eventJson["location"],
+        "notifyUsers": eventJson["notifyUsers"],
+        "time": eventJson["time"],
+        "type": eventJson["type"] ?? "Unknown" // Default type if null
+      };
+
+      // Add the event to Firestore
+      await eventsCollection.add(eventMap).then((docRef) {
+        print('Document added with ID: ${docRef.id}');
+      }).catchError((error) {
+        print('Error adding document: $error');
+      });
+    }
+  }
+
+  void uploadEventsFromJson() async {
+    // Load and decode JSON data from file
+    String jsonString = await loadJsonData('lib/data/events.json');
+    List<dynamic> eventsList = json.decode(jsonString);
+
+    // Upload to Firestore
+    await pushEventsToFirestore(eventsList).then((_) {
+      print('All events have been successfully uploaded to Firestore.');
+    }).catchError((error) {
+      print("Error uploading events: $error");
     });
   }
 

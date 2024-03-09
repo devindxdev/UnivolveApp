@@ -31,14 +31,16 @@ class _EventCardState extends State<EventCard> {
   Color getTypeColor(String type) {
     // Method that returns a color based on the event type.
     switch (type.toLowerCase()) {
-      case 'sports':
-        return Color(0xFFB38F71);
-      case 'academic':
+      case 'academic announcements':
+        return Color(0xFFFA917A);
+      case 'alumini & friends':
         return Color(0xFF9e2a2b);
-      case 'entertainment':
+      case 'holidays, closures & maintenance':
         return Color(0xFF3a5a40);
-      case 'advertisement':
+      case 'information sessions':
         return Color(0xFFee6c4d);
+      case 'student life':
+        return Color(0xFF84C5BE);
       default:
         return Colors.grey; // Default color if type doesn't match.
     }
