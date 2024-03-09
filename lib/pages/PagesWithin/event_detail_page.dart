@@ -208,7 +208,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
           String location = data['location'];
           String description =
               data['description'] ?? 'No description available';
-          int likeCount = data['likeCount'];
+          int likeCount = (data['likeCount'] ?? 0).toInt();
 
           return SingleChildScrollView(
             child: Column(

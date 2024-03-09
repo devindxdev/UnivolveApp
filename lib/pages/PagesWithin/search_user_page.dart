@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:univolve_app/pages/PagesWithin/qr_scanner.dart';
 
 class SearchUserPage extends StatefulWidget {
   @override
@@ -8,6 +10,15 @@ class SearchUserPage extends StatefulWidget {
 
 class _SearchUserPageState extends State<SearchUserPage> {
   String searchQuery = "";
+
+  String getPhotoUrl(dynamic user) {
+    // Access the user document's data as a map
+    var userData = user.data() as Map<String, dynamic>;
+
+    // Use the null-aware operator to check for 'photoUrl' and provide a default value
+    return userData['photoUrl'] ??
+        'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/defaultProfilePhoto.png';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,10 +30,12 @@ class _SearchUserPageState extends State<SearchUserPage> {
           IconButton(
             icon: Icon(Icons.camera_alt),
             onPressed: () {
-              // Implement QR scanner logic here
-              
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => QRScannerPage()),
+              );
             },
-          ),
+          )
         ],
       ),
       body: Column(
@@ -31,14 +44,15 @@ class _SearchUserPageState extends State<SearchUserPage> {
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 labelText: 'Search by name',
                 suffixIcon: Icon(Icons.search),
               ),
               onChanged: (value) {
                 setState(() {
-                  searchQuery = value
-                      .trim()
-                      .toLowerCase(); // Assuming usernames are stored in lowercase
+                  searchQuery = value.trim();
                 });
               },
             ),
@@ -67,17 +81,31 @@ class _SearchUserPageState extends State<SearchUserPage> {
                     var user = documents[index];
                     return ListTile(
                       leading: CircleAvatar(
-                        // backgroundImage: NetworkImage(user.get('photoUrl') ??
-                        //     'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/defaultProfilePhoto.png'),
-                        backgroundImage: NetworkImage(
-                            'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/defaultProfilePhoto.png'),
-                      ),
-                      title: Text(user.get('username')),
-                      trailing: IconButton(
-                        icon: Icon(Icons.person_add),
-                        onPressed: () {
-                          // Implement add connection logic here
-                        },
+                          backgroundImage: NetworkImage(
+                        getPhotoUrl(user),
+                      )),
+                      title: Text(user.get('username'),
+                          style: GoogleFonts.poppins(fontSize: 20)),
+                      trailing: Container(
+                        height: 40,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Color(0xff016D77),
+                        ),
+                        width: 100,
+                        child: Center(
+                          child: Row(
+                            children: <Widget>[
+                              Text('   Connect',
+                                  style:
+                                      GoogleFonts.poppins(color: Colors.white)),
+                              SizedBox(
+                                width: 5,
+                              ),
+                              Icon(Icons.person_add, color: Colors.white),
+                            ],
+                          ),
+                        ),
                       ),
                     );
                   },

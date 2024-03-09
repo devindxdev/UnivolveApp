@@ -133,34 +133,44 @@ class _EventsPageState extends State<EventsPage> {
       ),
       body: eventDocuments.isEmpty
           ? Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              controller: _scrollController,
-              itemCount: eventDocuments.length +
-                  1, // Add one for the loading indicator at the bottom
-              itemBuilder: (context, index) {
-                if (index == eventDocuments.length) {
-                  // Return loading indicator at the bottom
-                  return isMoreDataAvailable
-                      ? Center(child: CircularProgressIndicator())
-                      : Container();
-                }
-                var data = eventDocuments[index].data() as Map<String, dynamic>;
-                return GestureDetector(
-                  onTap: () {
-                    // Add navigation to the event details page
-                  },
-                  child: EventCard(
-                    imagePath: data['imagePath'],
-                    title: data['title'],
-                    date: formatTimestampToString(data['date']),
-                    time: data['time'],
-                    location: data['location'],
-                    likeCount: data['likeCount'] ?? 0,
-                    type: data['type'],
-                    documentId: eventDocuments[index].id,
-                  ),
-                );
-              },
+          : Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: ListView.builder(
+                controller: _scrollController,
+                itemCount: eventDocuments.length +
+                    1, // Add one for the loading indicator at the bottom
+                itemBuilder: (context, index) {
+                  if (index == eventDocuments.length) {
+                    // Return loading indicator at the bottom
+                    return isMoreDataAvailable
+                        ? Center(child: CircularProgressIndicator())
+                        : Container();
+                  }
+                  var data =
+                      eventDocuments[index].data() as Map<String, dynamic>;
+                  return GestureDetector(
+                    onTap: () {
+                      // Add navigation to the event details page
+                      Navigator.push(context, MaterialPageRoute(builder: (_) {
+                        return EventDetailsPage(
+                          imagePath: data['imagePath'],
+                          documentId: eventDocuments[index].id,
+                        );
+                      }));
+                    },
+                    child: EventCard(
+                      imagePath: data['imagePath'],
+                      title: data['title'],
+                      date: formatTimestampToString(data['date']),
+                      time: data['time'],
+                      location: data['location'],
+                      likeCount: (data['likeCount'] ?? 0).toInt(),
+                      type: data['type'],
+                      documentId: eventDocuments[index].id,
+                    ),
+                  );
+                },
+              ),
             ),
     );
   }
