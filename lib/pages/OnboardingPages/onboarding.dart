@@ -70,6 +70,13 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                 SmoothPageIndicator(
                   controller: _controller,
                   count: _totalPages,
+                  effect: ExpandingDotsEffect(
+                    activeDotColor: Color(0xff006d77),
+                    dotColor: Color(0xff006d77).withOpacity(0.8),
+                    dotHeight: 10,
+                    dotWidth: 10,
+                    spacing: 10,
+                  ),
                 ),
 
                 // Next or Get Started button
