@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:univolve_app/pages/AllAuthPages/auth_page.dart';
+import 'package:univolve_app/pages/OnboardingPages/onboarding_page4.dart';
+import 'package:univolve_app/pages/OnboardingPages/onboarding_page5.dart';
+import 'package:univolve_app/pages/OnboardingPages/onboarding_page6.dart';
 import 'onboarding_page1.dart'; // Make sure to create and import this
 import 'onboarding_page2.dart'; // Make sure to create and import this
 import 'onboarding_page3.dart'; // Make sure to create and import this
@@ -13,7 +16,7 @@ class OnBoardingScreen extends StatefulWidget {
 
 class _OnBoardingScreenState extends State<OnBoardingScreen> {
   final PageController _controller = PageController();
-  final int _totalPages = 3;
+  final int _totalPages = 6;
   bool _onLastPage = false;
 
   @override
@@ -43,6 +46,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
               OnboardingPage1(),
               OnboardingPage2(),
               OnboardingPage3(),
+              OnboardingPage4(),
+              OnboardingPage5(),
+              OnboardingPage6(),
             ],
           ),
 

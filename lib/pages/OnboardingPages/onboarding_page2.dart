@@ -1,33 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:lottie/lottie.dart';
 
 class OnboardingPage2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xff93C9C9),
+      backgroundColor: Color(0xffb2d8d8),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Image.asset(
-              'assets/images/onboarding_image.jpg',
-              width: 300, // Adjust the size as needed
-              height: 200, // Adjust the size as needed
-            ),
-            SizedBox(height: 20), // Spacing between image and text
             Text(
-              'Welcome to Univolve2',
-              style: TextStyle(
+              'Connect with Peers',
+              style: GoogleFonts.poppins(
                 fontSize: 24,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
               ),
             ),
-            SizedBox(height: 10), // Spacing between heading and subheading
-            Text(
-              'Enhance your university experience with our comprehensive platform.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
+            Lottie.network(
+              'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/onboarding/onboard2.json',
+              height: 300,
+            ),
+            SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: Text(
+                'Find and connect with students who share your interests and courses. Our platform makes it easy to expand your social circle at university.',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                  fontSize: 15,
+                ),
               ),
             ),
           ],
