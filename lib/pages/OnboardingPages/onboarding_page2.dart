@@ -6,7 +6,7 @@ class OnboardingPage2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xffb2d8d8),
+      backgroundColor: Color(0xff93C9C9),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
