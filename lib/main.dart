@@ -1,28 +1,32 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:univolve_app/pages/AllAuthPages/auth_page.dart';
-import 'package:univolve_app/pages/AllAuthPages/login_page.dart';
-import 'package:univolve_app/pages/AllAuthPages/register_page.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:univolve_app/pages/OnboardingPages/onboarding.dart';
+// import 'package:univolve_app/pages/onboarding_screens.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MyApp());
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  bool hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
+
+  runApp(MyApp(hasSeenOnboarding: hasSeenOnboarding));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool hasSeenOnboarding;
+
+  const MyApp({super.key, required this.hasSeenOnboarding});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Univolve',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: AuthPage(),
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: hasSeenOnboarding ? AuthPage() : OnBoardingScreen(),
     );
   }
 }
