@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:univolve_app/pages/PagesWithin/qr_scanner.dart';
+import 'package:univolve_app/pages/PagesWithin/view_profile.dart';
+import 'package:univolve_app/pages/assetUIElements/connectButton.dart';
 
 class SearchUserPage extends StatefulWidget {
   @override
@@ -81,32 +83,20 @@ class _SearchUserPageState extends State<SearchUserPage> {
                     var user = documents[index];
                     return ListTile(
                       leading: CircleAvatar(
-                          backgroundImage: NetworkImage(
-                        getPhotoUrl(user),
-                      )),
+                        backgroundImage: NetworkImage(getPhotoUrl(user)),
+                      ),
                       title: Text(user.get('username'),
                           style: GoogleFonts.poppins(fontSize: 20)),
-                      trailing: Container(
-                        height: 40,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Color(0xff016D77),
-                        ),
-                        width: 100,
-                        child: Center(
-                          child: Row(
-                            children: <Widget>[
-                              Text('   Connect',
-                                  style:
-                                      GoogleFonts.poppins(color: Colors.white)),
-                              SizedBox(
-                                width: 5,
-                              ),
-                              Icon(Icons.person_add, color: Colors.white),
-                            ],
+                      trailing: ConnectButtonLarge(),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ViewProfilePage(
+                                user: user.data() as Map<String, dynamic>),
                           ),
-                        ),
-                      ),
+                        );
+                      },
                     );
                   },
                 );

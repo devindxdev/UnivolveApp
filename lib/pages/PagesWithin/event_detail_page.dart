@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swipeable_button_view/swipeable_button_view.dart';
@@ -344,36 +345,39 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                           ],
                         ),
                       ),
-                      SizedBox(height: 200),
-                      SwipeableButtonView(
-                        onFinish: () {
-                          // Show Snackbar on finish
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                  "The event has been added to your list."),
-                            ),
-                          );
-                          // Update UI state to reflect the cancel button
-                          setState(() {
-                            _isSubscribedForNotifications = true;
-                          });
-                        },
-                        onWaitingProcess: () =>
-                            toggleEventNotificationSubscription(),
-                        activeColor: const Color(0xff016D77),
-                        buttonWidget: _isSubscribedForNotifications
-                            ? const Icon(Icons.cancel,
-                                color: Colors.red,
-                                size:
-                                    30) // Show cancel icon if already subscribed
-                            : const Icon(Icons.notification_add,
-                                color: Color(0xff016D77),
-                                size:
-                                    30), // Show add notification icon otherwise
-                        buttonText: _isSubscribedForNotifications
-                            ? "Unsubscribe from Notifications"
-                            : "Notify Me for this Event",
+                      SizedBox(height: 20),
+                      Positioned(
+                        bottom: 10,
+                        child: SwipeableButtonView(
+                          onFinish: () {
+                            // Show Snackbar on finish
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                    "The event has been added to your list."),
+                              ),
+                            );
+                            // Update UI state to reflect the cancel button
+                            setState(() {
+                              _isSubscribedForNotifications = true;
+                            });
+                          },
+                          onWaitingProcess: () =>
+                              toggleEventNotificationSubscription(),
+                          activeColor: const Color(0xff016D77),
+                          buttonWidget: _isSubscribedForNotifications
+                              ? const Icon(Icons.cancel,
+                                  color: Colors.red,
+                                  size:
+                                      30) // Show cancel icon if already subscribed
+                              : const Icon(Icons.notification_add,
+                                  color: Color(0xff016D77),
+                                  size:
+                                      30), // Show add notification icon otherwise
+                          buttonText: _isSubscribedForNotifications
+                              ? "Unsubscribe from Notifications"
+                              : "Notify Me for this Event",
+                        ),
                       )
                     ],
                   ),

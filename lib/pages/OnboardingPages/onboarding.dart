@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:univolve_app/pages/AllAuthPages/auth_page.dart';
 import 'package:univolve_app/pages/OnboardingPages/onboarding_page4.dart';
@@ -92,7 +93,13 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                   )
                 else
                   GestureDetector(
-                    onTap: () {
+                    onTap: () async {
+                      // At the end of your onboarding flow
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      await prefs.setBool('hasSeenOnboarding', true);
+                      // Navigate to AuthPage
+
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(

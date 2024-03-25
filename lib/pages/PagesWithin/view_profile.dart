@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:univolve_app/pages/assetUIElements/connectButton.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ViewProfilePage extends StatelessWidget {
   final Map<String, dynamic>? user;
 
-  ViewProfilePage({required this.user});
+  ViewProfilePage({super.key, required this.user});
 
   final TextStyle _textStyleTitle = GoogleFonts.poppins(
     fontSize: 16,
@@ -18,6 +20,7 @@ class ViewProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(),
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
@@ -44,6 +47,34 @@ class ViewProfilePage extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
                   fontSize: 16,
+                ),
+              ),
+            ),
+            const SizedBox(height: 5),
+            GestureDetector(
+              onTap: () {},
+              child: Container(
+                height: 40,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Color(0xff016D77),
+                ),
+                width: 128,
+                child: Center(
+                  child: Row(
+                    children: <Widget>[
+                      Text('   Add Friend',
+                          style: GoogleFonts.poppins(color: Colors.white)),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Icon(
+                        Icons.person_add,
+                        color: Colors.white,
+                        //set size
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -115,8 +146,9 @@ class ViewProfilePage extends StatelessWidget {
         );
       }
     });
-    if (iconList.isEmpty)
+    if (iconList.isEmpty) {
       iconList.add(Text('No social media provided', style: _textStyleSubtitle));
+    }
     return iconList;
   }
 
@@ -136,8 +168,12 @@ class ViewProfilePage extends StatelessWidget {
   void _launchURL(String urlString) async {
     final Uri url = Uri.parse(urlString);
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-      // Log error or inform user if unable to launch URL
-      print('Could not launch $urlString');
+      // Log error or inform user if unable to launch URL show snackbar
+      // ScaffoldMessenger.of(context as BuildContext).showSnackBar(
+      //   SnackBar(
+      //     content: Text("Unable to open URL"),
+      //   ),
+      // );
     }
   }
 }

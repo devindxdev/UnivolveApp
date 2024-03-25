@@ -3,12 +3,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:univolve_app/pages/AllAuthPages/auth_page.dart';
 import 'package:univolve_app/pages/OnboardingPages/onboarding.dart';
-// import 'package:univolve_app/pages/onboarding_screens.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
 

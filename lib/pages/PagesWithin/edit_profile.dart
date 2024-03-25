@@ -24,6 +24,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
   late TextEditingController _interestsController;
   late TextEditingController _usernameController;
   late TextEditingController _programController;
+  late TextEditingController _positionController;
+  late TextEditingController _truClubController;
   late TextEditingController _linkedinController;
   late TextEditingController _githubController;
   late TextEditingController _websiteController;
@@ -35,9 +37,37 @@ class _EditProfilePageState extends State<EditProfilePage> {
     'Bachelor of Computer Science'
   ];
 
+  List<String> availableCourses = [
+    'Choose Course',
+    "COMP2130 - Introduction to Computer Systems",
+    "COMP2160 - Mobile Application Development 1",
+    "COMP2210 - Programming Methods",
+    "COMP2230 - Data Structure, Algorithm Analysis, and Program Design",
+    "COMP2680 - Web Site Design and Development",
+    "COMP2920 - Software Architecture Design",
+    "COMP3050 - Algorithm Design and Analysis",
+    "COMP3130 - Formal Languages, Automata and Computability",
+    "COMP3260 - Computer Network Security",
+    "COMP3270 - Computer Network",
+    "COMP3410 - Operating Systems",
+    "COMP3450 - Human-Computer Interaction Design",
+    "COMP3520 - Software Engineering",
+    "COMP3540 - Advanced Web Design and Programming",
+  ];
+
+  List<String> currentCourses = [];
+
+  List<String> clubPositions = [
+    'Not a member',
+    'President',
+    'Vice President',
+    'Member'
+  ]; // List of club positions
+
   @override
   void initState() {
     super.initState();
+
     _bioController = TextEditingController(text: widget.userData['bio']);
     _interestsController =
         TextEditingController(text: widget.userData['interests']);
@@ -45,7 +75,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
         TextEditingController(text: widget.userData['username']);
     _programController =
         TextEditingController(text: widget.userData['program']);
-    // TextEditingController(text: widget.userData['program']);
+    _positionController =
+        TextEditingController(text: widget.userData['positionInClub'] ?? '');
+    _truClubController =
+        TextEditingController(text: widget.userData['truClub'] ?? '');
     _linkedinController = TextEditingController(
         text: widget.userData['socialMediaHandles']['LinkedIn']);
     _githubController = TextEditingController(
@@ -54,6 +87,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
         text: widget.userData['socialMediaHandles']['Website']);
     _instagramController = TextEditingController(
         text: widget.userData['socialMediaHandles']['Instagram']);
+    fetchProgramOptions();
+    fetchClubPositions();
+    fetchAvailableCourses();
+    fetchCurrentCourses(widget.userData['universityId']);
   }
 
   @override
@@ -66,7 +103,57 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _githubController.dispose();
     _websiteController.dispose();
     _instagramController.dispose();
+    _positionController.dispose();
+    _truClubController.dispose();
     super.dispose();
+  }
+
+  Future<void> fetchProgramOptions() async {
+    DocumentSnapshot snapshot = await FirebaseFirestore.instance
+        .collection('assets')
+        .doc('availablePrograms')
+        .get();
+    List<dynamic> programs = snapshot['programs'];
+    setState(() {
+      programOptions = List<String>.from(programs);
+    });
+  }
+
+  Future<void> fetchClubPositions() async {
+    DocumentSnapshot snapshot = await FirebaseFirestore.instance
+        .collection('assets')
+        .doc('clubPositions')
+        .get();
+    List<dynamic> positions = snapshot['clubPositions'];
+    setState(() {
+      clubPositions = List<String>.from(positions);
+    });
+  }
+
+  Future<void> fetchAvailableCourses() async {
+    DocumentSnapshot snapshot = await FirebaseFirestore.instance
+        .collection('assets')
+        .doc('availableCourses')
+        .get();
+    Map<String, dynamic> courses = snapshot['courseList'];
+    setState(() {
+      availableCourses = courses.entries
+          .map((entry) => "${entry.key} : ${entry.value}")
+          .toList();
+    });
+  }
+
+  Future<void> fetchCurrentCourses(String userDocId) async {
+    DocumentSnapshot snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userDocId)
+        .get();
+    Map<String, dynamic> courses = snapshot['currentCourses'];
+    setState(() {
+      currentCourses = courses.entries
+          .map((entry) => "${entry.key} : ${entry.value}")
+          .toList();
+    });
   }
 
   Future<void> _saveProfile() async {
@@ -78,6 +165,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
         return;
       }
 
+      // Convert currentCourses back into a map for Firestore
+      Map<String, String> coursesMap = {};
+      for (var course in currentCourses) {
+        // Assuming course is in the format "COMP2130 : Introduction to Computer Systems"
+        var parts = course.split(
+            " : "); // Split by " : " to get [COMP2130, Introduction to Computer Systems]
+        if (parts.length == 2) {
+          coursesMap[parts[0]] = parts[1];
+        }
+      }
+
       try {
         await FirebaseFirestore.instance
             .collection('users')
@@ -87,6 +185,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
           'interests': _interestsController.text,
           'username': _usernameController.text,
           'program': _programController.text,
+          'currentCourses': coursesMap,
+          'truClub': _truClubController.text,
+          'positionInClub': _positionController.text,
           'socialMediaHandles': {
             'LinkedIn': _linkedinController.text,
             'Github': _githubController.text,
@@ -109,6 +210,67 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ));
       }
     }
+  }
+
+  List<Widget> _buildCourseSelections() {
+    List<Widget> courseWidgets = [];
+    for (int i = 0; i < currentCourses.length; i++) {
+      courseWidgets.add(
+        Row(
+          children: [
+            Expanded(
+              child: DropdownButtonFormField<String>(
+                value: currentCourses[i],
+                onChanged: (newValue) {
+                  setState(() {
+                    currentCourses[i] = newValue!;
+                  });
+                },
+                items: availableCourses.map((course) {
+                  return DropdownMenuItem<String>(
+                    value: course,
+                    child: Text(
+                      course.length > 20
+                          ? course.substring(0, 20) + '...'
+                          : course,
+                      style: GoogleFonts.poppins(fontSize: 12.0),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1, // Restrict to one line
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+            IconButton(
+              icon: Icon(Icons.remove_circle, color: Color(0xff016D77)),
+              onPressed: () {
+                setState(() {
+                  currentCourses.removeAt(i);
+                });
+              },
+            ),
+          ],
+        ),
+      );
+    }
+    courseWidgets.add(
+      Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          IconButton(
+            icon: Icon(Icons.add_circle, color: Color(0xff016D77)),
+            onPressed: () {
+              setState(() {
+                currentCourses.add(availableCourses[0]);
+              });
+            },
+          ),
+          Text('Add Course',
+              style: GoogleFonts.poppins(fontSize: 12.0)), // Small text size
+        ],
+      ),
+    );
+    return courseWidgets;
   }
 
   // Method to upload image
@@ -187,7 +349,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               child: Container(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text('Update Profile',
+                  child: Text('Save Profile',
                       style: GoogleFonts.poppins(
                           color: Colors.white,
                           fontSize: 10.0,
@@ -210,7 +372,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
           Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color: Color(0xffEDF6F9),
+              color: Color(
+                0xffF2F2F2,
+              ),
             ),
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -255,122 +419,363 @@ class _EditProfilePageState extends State<EditProfilePage> {
           ),
           const SizedBox(height: 16),
           SizedBox(width: 8),
-          TextFormField(
-            style: GoogleFonts.poppins(),
-            controller: _usernameController,
-            decoration: InputDecoration(labelText: 'Username'),
-            validator: (value) {
-              if (value!.trim().isEmpty) {
-                return 'Username cannot be empty';
-              }
-              return null;
-            },
+          Row(
+            children: [
+              Container(
+                width: 90,
+                child: Text(
+                  'Username',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14.0,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              SizedBox(width: 3),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.grey,
+                      width: 1.0,
+                    ),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: TextFormField(
+                    style: GoogleFonts.poppins(fontSize: 14.0),
+                    controller: _usernameController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter your username',
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10.0),
+                    ),
+                    validator: (value) {
+                      if (value!.trim().isEmpty) {
+                        return 'Username cannot be empty';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+              ),
+            ],
           ),
-          DropdownButtonFormField<String>(
-            decoration: InputDecoration(
-              labelText: 'Select Program',
-            ),
-            value: _programController.text,
-            onChanged: (String? value) {
-              setState(() {
-                _programController.text = value ?? '';
-              });
-            },
-            items: programOptions.map((String option) {
-              return DropdownMenuItem<String>(
-                value: option,
-                child: Text(option, style: GoogleFonts.poppins()),
-              );
-            }).toList(),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please select a program';
-              }
-              return null;
-            },
+          SizedBox(height: 16),
+          Row(
+            children: [
+              Container(
+                width: 85,
+                child: Text(
+                  'Program',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14.0,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.grey,
+                      width: 1.0,
+                    ),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: DropdownButtonFormField<String>(
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintText: 'Select Program',
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10.0),
+                    ),
+                    value: _programController.text,
+                    onChanged: (String? value) {
+                      setState(() {
+                        _programController.text = value ?? '';
+                      });
+                    },
+                    items: programOptions.map((String option) {
+                      return DropdownMenuItem<String>(
+                        value: option,
+                        child: Text(option,
+                            style: GoogleFonts.poppins(fontSize: 14.0)),
+                      );
+                    }).toList(),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please select a program';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+              ),
+            ],
           ),
-          TextFormField(
-            controller: _bioController,
-            // Your TextEditingController
-            decoration: InputDecoration(
-              labelText: 'Bio',
-            ),
-            style: GoogleFonts.poppins(),
+          SizedBox(height: 16),
+          Row(
+            children: [
+              Container(
+                width: 85,
+                child: Text(
+                  'Courses',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14.0,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.grey,
+                      width: 1.0,
+                    ),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: _buildCourseSelections(),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+          Row(
+            children: [
+              Container(
+                width: 90,
+                child: Text(
+                  'Bio',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14.0,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              SizedBox(width: 3),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.grey,
+                      width: 1.0,
+                    ),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: TextFormField(
+                    style: GoogleFonts.poppins(fontSize: 14.0),
+                    controller: _bioController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter your bio',
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10.0),
+                    ),
+                    maxLines: 5,
+                    keyboardType: TextInputType.multiline,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Bio cannot be empty';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+          Row(
+            children: [
+              Container(
+                width: 90,
+                child: Text(
+                  'Interests',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14.0,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              SizedBox(width: 3),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.grey,
+                      width: 1.0,
+                    ),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: TextFormField(
+                    style: GoogleFonts.poppins(fontSize: 14.0),
+                    controller: _interestsController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter your interests',
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10.0),
+                    ),
+                    maxLines: 2,
+                    keyboardType: TextInputType.multiline,
+                    validator: (value) {
+                      if (value!.trim().isEmpty) {
+                        return 'Interests cannot be empty';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+          // New UI for TRU Club
+          _buildTextInputRow('TRU Club', _truClubController),
 
-            maxLines: 5, // Allows for multiple lines
-            keyboardType: TextInputType
-                .multiline, // Sets the keyboard for multiline input
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Bio cannot be empty';
-              }
-              return null;
-            },
+          SizedBox(height: 16),
+
+          // New UI for Position in Club - Dropdown
+          _buildDropdownRow(
+              'Position in Club', _positionController, clubPositions),
+
+          SizedBox(height: 16),
+          Divider(),
+          Text(
+            'Social Media Handles ',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.poppins(
+              fontSize: 18.0,
+              fontWeight: FontWeight.w800,
+              color: Color(0xff016D77),
+            ),
           ),
-          TextFormField(
-            controller: _interestsController,
-            decoration: InputDecoration(labelText: 'Interests'),
-            style: GoogleFonts.poppins(),
-            maxLines: 2, // Allows for multiple lines
-            keyboardType: TextInputType.multiline, //
-            validator: (value) {
-              if (value!.trim().isEmpty) {
-                return 'Interests cannot be empty';
-              }
-              return null;
-            },
-          ),
+          SizedBox(height: 16),
           Row(
             children: [
               Icon(Icons.link, color: Colors.grey),
               SizedBox(width: 8),
               Expanded(
-                child: TextFormField(
-                  controller: _linkedinController,
-                  decoration: InputDecoration(labelText: 'LinkedIn (Optional)'),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.grey,
+                      width: 1.0,
+                    ),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: TextFormField(
+                    controller: _linkedinController,
+                    decoration: InputDecoration(
+                      hintText: 'LinkedIn (Optional)',
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10.0),
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
-          Row(children: [
-            Icon(Icons.link, color: Colors.grey),
-            SizedBox(width: 8),
-            Expanded(
-              child: TextFormField(
-                controller: _githubController,
-                decoration: InputDecoration(labelText: 'Github (Optional)'),
+          SizedBox(height: 16),
+          Row(
+            children: [
+              Icon(Icons.link, color: Colors.grey),
+              SizedBox(width: 8),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.grey,
+                      width: 1.0,
+                    ),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: TextFormField(
+                    controller: _githubController,
+                    decoration: InputDecoration(
+                      hintText: 'Github (Optional)',
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10.0),
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ]),
-          Row(children: [
-            Icon(Icons.link, color: Colors.grey),
-            SizedBox(width: 8),
-            Expanded(
-              child: TextFormField(
-                controller: _websiteController,
-                decoration: InputDecoration(labelText: 'Website (Optional)'),
+            ],
+          ),
+          SizedBox(height: 16),
+          Row(
+            children: [
+              Icon(Icons.link, color: Colors.grey),
+              SizedBox(width: 8),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.grey,
+                      width: 1.0,
+                    ),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: TextFormField(
+                    controller: _websiteController,
+                    decoration: InputDecoration(
+                      hintText: 'Website (Optional)',
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10.0),
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ]),
-          Row(children: [
-            Icon(Icons.link, color: Colors.grey),
-            SizedBox(width: 8),
-            Expanded(
-              child: TextFormField(
-                controller: _instagramController,
-                decoration: InputDecoration(labelText: 'Instagram (Optional)'),
+            ],
+          ),
+          SizedBox(height: 16),
+          Row(
+            children: [
+              Icon(Icons.link, color: Colors.grey),
+              SizedBox(width: 8),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.grey,
+                      width: 1.0,
+                    ),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: TextFormField(
+                    controller: _instagramController,
+                    decoration: InputDecoration(
+                      hintText: 'Instagram (Optional)',
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10.0),
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ]),
+            ],
+          ),
           SizedBox(height: 24.0),
           GestureDetector(
             onTap: _saveProfile,
             child: Container(
-              child: Text('Update Profile',
-                  style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.w600)),
+              child: Text(
+                'Update Profile',
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               padding: EdgeInsets.symmetric(vertical: 16.0),
               alignment: Alignment.center,
               decoration: BoxDecoration(
@@ -381,6 +786,108 @@ class _EditProfilePageState extends State<EditProfilePage> {
           ),
         ]),
       ),
+    );
+  }
+
+  // Function to build a row with a text input field
+  Widget _buildTextInputRow(String label, TextEditingController controller) {
+    return Row(
+      children: [
+        Container(
+          width: 90,
+          child: Text(
+            label,
+            style: GoogleFonts.poppins(
+                fontSize: 14.0, fontWeight: FontWeight.w600),
+          ),
+        ),
+        SizedBox(width: 3),
+        Expanded(
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.grey,
+                width: 1.0,
+              ),
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            child: TextFormField(
+              style: GoogleFonts.poppins(fontSize: 14.0),
+              controller: controller,
+              decoration: InputDecoration(
+                hintText: 'Enter the $label you are part of',
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.symmetric(horizontal: 10.0),
+              ),
+              maxLines: 2,
+              keyboardType: TextInputType.multiline,
+              validator: (value) {
+                if (value!.trim().isEmpty) {
+                  return '$label cannot be empty';
+                }
+                return null;
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Function to build a row with a dropdown field
+  Widget _buildDropdownRow(
+      String label, TextEditingController controller, List<String> options) {
+    return Row(
+      children: [
+        Container(
+          width: 90,
+          child: Text(
+            label,
+            style: GoogleFonts.poppins(
+                fontSize: 14.0, fontWeight: FontWeight.w600),
+          ),
+        ),
+        SizedBox(width: 3),
+        Expanded(
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.grey,
+                width: 1.0,
+              ),
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            child: DropdownButtonFormField<String>(
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: 'Select $label',
+                contentPadding: EdgeInsets.symmetric(horizontal: 10.0),
+              ),
+              value: controller.text,
+              onChanged: (String? value) {
+                setState(() {
+                  controller.text = value ?? '';
+                });
+              },
+              items: options.map((String option) {
+                return DropdownMenuItem<String>(
+                  value: option,
+                  child: Text(
+                    option,
+                    style: GoogleFonts.poppins(fontSize: 14.0),
+                  ),
+                );
+              }).toList(),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please select a $label';
+                }
+                return null;
+              },
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
