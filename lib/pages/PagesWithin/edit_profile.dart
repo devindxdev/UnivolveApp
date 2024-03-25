@@ -200,7 +200,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
           content: Text('Profile updated successfully!'),
           duration: Duration(seconds: 2),
         ));
-        Navigator.pop(context);
+// Inside your _saveProfile function, after successfully updating the profile
+        Navigator.pop(context, true); // 'true' indicates changes were made
       } catch (error) {
         print('Error updating profile: $error');
         // Show error message
@@ -230,8 +231,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   return DropdownMenuItem<String>(
                     value: course,
                     child: Text(
-                      course.length > 20
-                          ? course.substring(0, 20) + '...'
+                      course.length > 24
+                          ? course.substring(0, 24) + '...'
                           : course,
                       style: GoogleFonts.poppins(fontSize: 12.0),
                       overflow: TextOverflow.ellipsis,

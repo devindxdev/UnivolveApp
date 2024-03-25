@@ -1,6 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:univolve_app/assets/u_i2_icons.dart';
+import 'package:univolve_app/assets/univolve_icons2_icons.dart';
+import 'package:univolve_app/assets/univolve_icons_icons.dart';
 import 'package:univolve_app/pages/PagesWithin/edit_profile.dart';
 import 'package:univolve_app/pages/services/database_service.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -35,7 +39,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void fetchAndSetUserDetails() async {
     userDetails = await _userService.fetchUserDetails();
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void _showQrCodeDialog(BuildContext context) {
@@ -98,6 +104,46 @@ class _ProfilePageState extends State<ProfilePage> {
                 fontSize: 24,
               ),
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    // Add navigation to the EditProfilePage
+                    // Navigator.push(context, MaterialPageRoute(builder: (_) {
+                    //   return EditProfilePage(userData: userDetails);
+                    // }));
+                  },
+                  child: Text(
+                    userDetails!['friendsCount'].toString() + ' Friends' ??
+                        '0' + ' Friends',
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 8),
+                GestureDetector(
+                  onTap: () {
+                    // Add navigation to the EditProfilePage
+                    // Navigator.push(context, MaterialPageRoute(builder: (_) {
+                    //   return EditProfilePage(userData: userDetails);
+                    // }));
+                  },
+                  child: Text(
+                    (userDetails!['truClub'].isNotEmpty)
+                        ? '|  ' + userDetails!['truClub']
+                        : '',
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 15),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 0),
               child: Text(
@@ -139,19 +185,24 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 SizedBox(width: 8),
                 GestureDetector(
-                  onTap: () {
-                    // Add action for customizing bio
-                    Navigator.of(context).push(
+                  onTap: () async {
+                    // Wait for the EditProfilePage to pop and check if the profile was updated
+                    final result = await Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) =>
                             EditProfilePage(userData: userDetails!),
                       ),
                     );
+
+                    // If result is true, refresh the user details
+                    if (result == true) {
+                      fetchAndSetUserDetails();
+                    }
                   },
                   child: Container(
                     child: Row(
                       children: [
-                        Icon(Icons.edit, color: Colors.white),
+                        Icon(UI2.paint_board_and_brush, color: Colors.white),
                         SizedBox(width: 8),
                         Text('Customize Profile',
                             style: GoogleFonts.poppins(
@@ -249,14 +300,13 @@ class _ProfilePageState extends State<ProfilePage> {
   IconData _getSocialIcon(String key) {
     switch (key) {
       case 'LinkedIn':
-        return Icons.linked_camera; // Replace with actual LinkedIn icon
+        return UI2.git_hub;
       case 'Instagram':
-        return Icons.camera_alt; // Replace with actual Instagram icon
+        return UI2.instagram;
       case 'Github':
-        return Icons.code; // Replace with actual Github icon
-      // Add more cases for different social media
+        return UI2.linkedin;
       default:
-        return Icons.web; // Default icon for unknown social media
+        return Icons.link_rounded;
     }
   }
 
