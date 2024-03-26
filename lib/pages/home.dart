@@ -38,18 +38,20 @@ class _HomeScreenState extends State<HomeScreen> {
           DocumentSnapshot eventSnapshot =
               await _firestore.collection('events').doc(eventId).get();
           if (eventSnapshot.exists) {
-            fetchedEventDetails
-                .add(eventSnapshot.data() as Map<String, dynamic>);
+            Map<String, dynamic> eventData =
+                eventSnapshot.data() as Map<String, dynamic>;
+            print("Fetched event data: $eventData"); // Log the event data
+            fetchedEventDetails.add(eventData);
           } else {
             print("Event with ID $eventId not found.");
           }
         }
 
-        // Sort the events by date in ascending order
+        // Now sort the fetched events by likeCount in descending order
         fetchedEventDetails.sort((a, b) {
-          DateTime dateA = (a['date'] as Timestamp).toDate();
-          DateTime dateB = (b['date'] as Timestamp).toDate();
-          return dateA.compareTo(dateB);
+          int likeCountA = a['likeCount'] ?? 0;
+          int likeCountB = b['likeCount'] ?? 0;
+          return likeCountB.compareTo(likeCountA); // For descending order
         });
 
         setState(() {
@@ -76,22 +78,33 @@ class _HomeScreenState extends State<HomeScreen> {
               Text(
                 'Welcome back,',
                 style: GoogleFonts.poppins(
-                  fontSize: 24,
+                  fontSize: 16,
                   fontWeight: FontWeight.w600,
+                  color: Colors.grey[600],
                 ),
               ),
               Text(
                 userName ?? 'Fetching name...',
                 style: GoogleFonts.poppins(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 38,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                'We hope you are having a great day!',
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[600],
                 ),
               ),
               SizedBox(height: 24),
+              Divider(),
+              SizedBox(height: 24),
 
-              // Text for Trending Events
+              // Text for following section
               Text(
-                'Trending Events',
+                'Following Events',
                 style: GoogleFonts.poppins(
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
@@ -100,22 +113,32 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // Horizontal list view for event cards
               Container(
+                width: 330,
                 height: 200, // Adjust the height as needed
                 child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
+                  scrollDirection: Axis.vertical,
                   itemCount: eventDetails.length,
                   itemBuilder: (context, index) {
                     final data = eventDetails[index];
-                    return EventCard(
-                      imagePath: data['imagePath'],
-                      title: data['title'],
-                      date: formatTimestampToString(data['date']),
-                      time: data['time'],
-                      location: data['location'],
-                      likeCount: (data['likeCount'] ?? 0).toInt(),
-                      type: data['type'],
-                      documentId: data[
-                          'id'], // Assuming 'id' is a field in your event documents
+                    print(
+                        "Event data for card: $data"); // Log the data for the current card
+
+                    // Ensure you handle null values appropriately before here
+                    return Container(
+                      child: EventCard(
+                        imagePath: data['imagePath'] ??
+                            'defaultImagePath', // Example of handling null
+                        title: data['title'] ?? 'No Title',
+                        time: data['time'] ?? 'No Time',
+                        location: data['location'] ?? 'No Location',
+                        date: data['date'] != null
+                            ? formatTimestampToString(data['date'])
+                            : 'No Date',
+                        type: data['type'] ?? 'No Type',
+                        likeCount: data['likeCount'] ?? 0,
+                        documentId: data['documentId'] ?? 'No Document ID',
+                        // Continue for other fields
+                      ),
                     );
                   },
                 ),
@@ -140,7 +163,24 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String formatTimestampToString(Timestamp timestamp) {
     DateTime dateTime = timestamp.toDate();
-    // Your existing format logic
-    return '';
+    List<String> monthNames = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ];
+
+    // Format: "Month day, year" (e.g., "February 13, 2024")
+    String formattedDate =
+        "${monthNames[dateTime.month - 1]} ${dateTime.day}, ${dateTime.year}";
+    return formattedDate;
   }
 }

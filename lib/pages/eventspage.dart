@@ -1,112 +1,231 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:univolve_app/pages/assetUIElements/event_card_long.dart';
-import 'package:univolve_app/pages/services/database_service.dart';
+import 'dart:convert';
 
-class HomeScreen extends StatefulWidget {
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:google_fonts/google_fonts.dart';
+import 'package:univolve_app/pages/PagesWithin/ai_bot.dart';
+import 'package:univolve_app/pages/PagesWithin/event_detail_page.dart';
+import 'package:univolve_app/pages/assetUIElements/event_card_long.dart'; // Make sure the path matches your EventCard widget
+
+class EventsPage extends StatefulWidget {
+  const EventsPage({Key? key}) : super(key: key);
+
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  State<EventsPage> createState() => _EventsPageState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final UserService _userService = UserService();
+class _EventsPageState extends State<EventsPage> {
+  final ScrollController _scrollController = ScrollController();
+  List<DocumentSnapshot> eventDocuments = [];
+  bool isMoreDataAvailable = true;
+  DocumentSnapshot? lastDocument;
+  final int pageSize = 10;
 
-  String? userName;
-  List<Map<String, dynamic>> eventDetails = [];
+  List<String> monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
+  ];
 
   @override
   void initState() {
     super.initState();
-    _fetchUserNameAndTrendingEvents();
+    // uploadEventsFromJson();
+    _fetchInitialData();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        _fetchMoreData();
+      }
+    });
   }
 
-  Future<void> _fetchUserNameAndTrendingEvents() async {
-    try {
-      Map<String, dynamic>? userDetails = await _userService.fetchUserDetails();
-      if (userDetails != null) {
-        setState(() {
-          userName = userDetails['username'];
-        });
+  Future<String> loadJsonData(String path) async {
+    return await rootBundle.loadString(path);
+  }
 
-        List<dynamic> notificationEvents =
-            userDetails['notificationEvents'] ?? [];
+//push events to firestore
+  Future<void> pushEventsToFirestore(List eventsList) async {
+    final CollectionReference eventsCollection =
+        FirebaseFirestore.instance.collection('events');
 
-        List<Map<String, dynamic>> fetchedEventDetails = [];
-        for (String eventId in notificationEvents) {
-          DocumentSnapshot eventSnapshot =
-              await _firestore.collection('events').doc(eventId).get();
-          if (eventSnapshot.exists) {
-            fetchedEventDetails
-                .add(eventSnapshot.data() as Map<String, dynamic>);
-          } else {
-            print("Event with ID $eventId not found.");
-          }
+    for (var eventJson in eventsList) {
+      // Attempt to parse the "date" field to DateTime
+      DateTime? parsedDate;
+      try {
+        String dateString = eventJson["date"];
+        // Adjust the parsing logic based on your actual date format
+        // Here, it's assumed your date format might include timezone information
+        int utcIndex = dateString.indexOf(" UTC");
+        if (utcIndex != -1) {
+          String toParse =
+              dateString.substring(0, utcIndex).replaceAll(" at ", " ");
+          parsedDate = DateTime.parse(toParse);
         }
-
-        // Sort the events by likeCount in descending order
-        fetchedEventDetails.sort((a, b) {
-          int likeCountA = a['likeCount'] ?? 0;
-          int likeCountB = b['likeCount'] ?? 0;
-          return likeCountB.compareTo(likeCountA);
-        });
-
-        setState(() {
-          eventDetails = fetchedEventDetails;
-        });
-      } else {
-        print("User details not found.");
+      } catch (e) {
+        print("Error parsing date: $e");
+        // Use current time as fallback
+        parsedDate = DateTime.now();
       }
-    } catch (e) {
-      print("Error fetching user details: $e");
+
+      Map<String, dynamic> eventMap = {
+        "title": eventJson["title"],
+        "date": parsedDate, // Using parsed DateTime object
+        "description": eventJson["description"],
+        "imagePath": eventJson["imagePath"],
+        "likeCount": eventJson["likeCount"],
+        "likedBy": eventJson["likedBy"],
+        "location": eventJson["location"],
+        "notifyUsers": eventJson["notifyUsers"],
+        "time": eventJson["time"],
+        "type": eventJson["type"] ?? "Unknown" // Default type if null
+      };
+
+      // Add the event to Firestore
+      await eventsCollection.add(eventMap).then((docRef) {
+        print('Document added with ID: ${docRef.id}');
+      }).catchError((error) {
+        print('Error adding document: $error');
+      });
     }
+  }
+
+  void uploadEventsFromJson() async {
+    // Load and decode JSON data from file
+    String jsonString = await loadJsonData('lib/data/events.json');
+    List<dynamic> eventsList = json.decode(jsonString);
+
+    // Upload to Firestore
+    await pushEventsToFirestore(eventsList).then((_) {
+      print('All events have been successfully uploaded to Firestore.');
+    }).catchError((error) {
+      print("Error uploading events: $error");
+    });
+  }
+
+  Future<void> _fetchInitialData() async {
+    var query = FirebaseFirestore.instance
+        .collection('events')
+        .orderBy('date') // Assuming there is a 'date' field to sort by
+        .limit(pageSize);
+
+    var querySnapshot = await query.get();
+    var documents = querySnapshot.docs;
+
+    if (documents.isNotEmpty) {
+      setState(() {
+        lastDocument = documents.last;
+        eventDocuments = documents;
+        isMoreDataAvailable = documents.length == pageSize;
+      });
+    }
+  }
+
+  Future<void> _fetchMoreData() async {
+    if (!isMoreDataAvailable) return;
+
+    var query = FirebaseFirestore.instance
+        .collection('events')
+        .orderBy('date')
+        .startAfterDocument(lastDocument!)
+        .limit(pageSize);
+
+    var querySnapshot = await query.get();
+    var documents = querySnapshot.docs;
+
+    if (documents.isNotEmpty) {
+      setState(() {
+        lastDocument = documents.last;
+        eventDocuments.addAll(documents);
+        isMoreDataAvailable = documents.length == pageSize;
+      });
+    }
+  }
+
+  String formatTimestampToString(Timestamp timestamp) {
+    DateTime dateTime = timestamp.toDate();
+    List<String> monthNames = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ];
+
+    // Format: "Month day, year" (e.g., "February 13, 2024")
+    String formattedDate =
+        "${monthNames[dateTime.month - 1]} ${dateTime.day}, ${dateTime.year}";
+    return formattedDate;
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              // Welcome message and user name display
-              Text(
-                'Welcome back,',
-                style: GoogleFonts.poppins(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Text(
-                userName ?? 'Fetching name...',
-                style: GoogleFonts.poppins(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 24),
-
-              // Text for Trending Events
-              Text(
-                'Trending Events',
-                style: GoogleFonts.poppins(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-
-              // Horizontal list view for trending event cards
-              Container(
-                height: 200, // Adjust the height as needed
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: eventDetails.length,
-                  itemBuilder: (context, index) {
-                    final data = eventDetails[index];
-                    return EventCard(
+      appBar: AppBar(
+        title: Text('Events', style: GoogleFonts.poppins()),
+        actions: [
+          IconButton(
+            onPressed: () {
+              // Add navigation to new page
+              Navigator.push(context, MaterialPageRoute(builder: (_) {
+                return ChatBot();
+              }));
+            },
+            icon: Icon(Icons.help_outline),
+          ),
+        ],
+      ),
+      body: eventDocuments.isEmpty
+          ? Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: ListView.builder(
+                controller: _scrollController,
+                itemCount: eventDocuments.length +
+                    1, // Add one for the loading indicator at the bottom
+                itemBuilder: (context, index) {
+                  if (index == eventDocuments.length) {
+                    // Return loading indicator at the bottom
+                    return isMoreDataAvailable
+                        ? Center(child: CircularProgressIndicator())
+                        : Container();
+                  }
+                  var data =
+                      eventDocuments[index].data() as Map<String, dynamic>;
+                  return GestureDetector(
+                    onTap: () {
+                      // Add navigation to the event details page
+                      Navigator.push(context, MaterialPageRoute(builder: (_) {
+                        return EventDetailsPage(
+                          imagePath: data['imagePath'],
+                          documentId: eventDocuments[index].id,
+                        );
+                      }));
+                    },
+                    child: EventCard(
                       imagePath: data['imagePath'],
                       title: data['title'],
                       date: formatTimestampToString(data['date']),
@@ -114,23 +233,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       location: data['location'],
                       likeCount: (data['likeCount'] ?? 0).toInt(),
                       type: data['type'],
-                      documentId: data[
-                          'id'], // Assuming 'id' is a field in your event documents
-                    );
-                  },
-                ),
+                      documentId: eventDocuments[index].id,
+                    ),
+                  );
+                },
               ),
-              // Any other widgets you want to include
-            ],
-          ),
-        ),
-      ),
+            ),
     );
-  }
-
-  String formatTimestampToString(Timestamp timestamp) {
-    DateTime dateTime = timestamp.toDate();
-    // Your existing format logic
-    return '';
   }
 }
