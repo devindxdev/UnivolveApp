@@ -6,6 +6,7 @@ import 'package:univolve_app/assets/u_i2_icons.dart';
 import 'package:univolve_app/assets/univolve_icons2_icons.dart';
 import 'package:univolve_app/assets/univolve_icons_icons.dart';
 import 'package:univolve_app/pages/PagesWithin/edit_profile.dart';
+import 'package:univolve_app/pages/PagesWithin/show_friends_page.dart';
 import 'package:univolve_app/pages/services/database_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -109,14 +110,14 @@ class _ProfilePageState extends State<ProfilePage> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    // Add navigation to the EditProfilePage
-                    // Navigator.push(context, MaterialPageRoute(builder: (_) {
-                    //   return EditProfilePage(userData: userDetails);
-                    // }));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => ShowFriendsPage(
+                                universityId: userDetails!['universityId'])));
                   },
                   child: Text(
-                    userDetails!['friendsCount'].toString() + ' Friends' ??
-                        '0' + ' Friends',
+                    '${userDetails!['friendsCount'].toString()} Friends',
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.w500,
                       fontSize: 14,
@@ -163,23 +164,23 @@ class _ProfilePageState extends State<ProfilePage> {
                       // Add action for sharing profile
                       () => _showQrCodeDialog(context),
                   child: Container(
-                    child: Row(
-                      children: [
-                        Icon(Icons.share, color: Colors.white),
-                        SizedBox(width: 8),
-                        Text('Share Profile',
-                            style: GoogleFonts.poppins(
-                                color: Colors.white,
-                                fontSize: 12.0,
-                                fontWeight: FontWeight.w500)),
-                      ],
-                    ),
                     padding:
                         EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: Color(0xff016D77),
                       borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.share, color: Colors.white),
+                        const SizedBox(width: 8),
+                        Text('Share Profile',
+                            style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 12.0,
+                                fontWeight: FontWeight.w500)),
+                      ],
                     ),
                   ),
                 ),

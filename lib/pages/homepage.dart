@@ -8,6 +8,7 @@ import 'package:univolve_app/assets/univolve_icons_icons.dart';
 import 'package:univolve_app/pages/PagesWithin/search_user_page.dart';
 import 'package:univolve_app/pages/assetUIElements/drawer.dart';
 import 'package:univolve_app/pages/eventspage.dart';
+import 'package:univolve_app/pages/home.dart';
 import 'package:univolve_app/pages/profile_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -92,20 +93,7 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     ),
-    Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text('Welcome to the home page'),
-          MaterialButton(
-            onPressed: () {
-              FirebaseAuth.instance.signOut();
-            },
-            child: Text('Sign Out'),
-          ),
-        ],
-      ),
-    ),
+    HomeScreen(),
     EventsPage(),
     ProfilePage(),
   ];

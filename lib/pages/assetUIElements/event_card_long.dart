@@ -1,3 +1,4 @@
+import 'dart:ui'; // Import this to use ImageFilter for blur.
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:univolve_app/pages/PagesWithin/event_detail_page.dart';
@@ -28,90 +29,92 @@ class EventCard extends StatefulWidget {
 }
 
 class _EventCardState extends State<EventCard> {
-  Color getTypeColor(String type) {
-    // Method that returns a color based on the event type.
-    switch (type.toLowerCase()) {
-      case 'academic announcements':
-        return Color(0xFFFA917A);
-      case 'alumini & friends':
-        return Color(0xFF9e2a2b);
-      case 'holidays, closures & maintenance':
-        return Color(0xFF3a5a40);
-      case 'information sessions':
-        return Color(0xFFee6c4d);
-      case 'student life':
-        return Color(0xFF84C5BE);
-      default:
-        return Colors.grey; // Default color if type doesn't match.
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    Color cardColor = getTypeColor(widget.type);
     return Card(
-      color: cardColor,
       elevation: 0.0,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: Stack(
         children: [
+          // Background Image
           Hero(
             tag: 'eventImage-${widget.documentId}',
             child: Image.network(
               widget.imagePath,
-              height: 100.0,
+              height: 200.0, // Adjusted height for better visual
+              width: double.infinity,
               fit: BoxFit.cover,
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.title,
-                  style: GoogleFonts.poppins(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
+          // Frosted Glass effect only at the bottom
+
+          // Text content positioned to align with the frosted glass effect
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: ClipRRect(
+              borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(15),
+                  bottomRight: Radius.circular(15)),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: Container(
+                  height: 72.0,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.2),
+                    borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(15),
+                        bottomRight: Radius.circular(15)),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 5, horizontal: 20), // Integrated padding
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.title,
+                        style: GoogleFonts.poppins(
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("${widget.date} · ${widget.time}",
+                                  style: GoogleFonts.poppins(
+                                      color: Colors.white, fontSize: 12.0)),
+                              Text(widget.location,
+                                  style: GoogleFonts.poppins(
+                                      color: Colors.white, fontSize: 12.0)),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Text(widget.likeCount.toString(),
+                                  style: GoogleFonts.poppins(
+                                      color: Colors.white,
+                                      fontSize: 22.0,
+                                      fontWeight: FontWeight.w600)),
+                              SizedBox(width: 4.0),
+                              Icon(Icons.favorite,
+                                  color: Color.fromARGB(255, 254, 82, 69),
+                                  size: 30.0),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-                SizedBox(height: 6.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("${widget.date} · ${widget.time}",
-                            style: GoogleFonts.poppins(
-                                color: Colors.white, fontSize: 12.0)),
-                        SizedBox(height: 5.0),
-                        Text(widget.location,
-                            style: GoogleFonts.poppins(
-                                color: Colors.white, fontSize: 12.0)),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(widget.likeCount.toString(),
-                            style: GoogleFonts.poppins(
-                                color: Colors.white,
-                                fontSize: 22.0,
-                                fontWeight: FontWeight.w600)),
-                        SizedBox(width: 4.0),
-                        Icon(Icons.favorite,
-                            color: Color.fromARGB(255, 254, 82, 69),
-                            size: 30.0),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
+              ),
             ),
           ),
         ],
