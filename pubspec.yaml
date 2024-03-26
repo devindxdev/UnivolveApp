@@ -86,9 +86,9 @@ flutter:
     - family: univolveIcons
       fonts:
         - asset: lib/assets/UnivolveIcons.ttf
-    - family: UI2
+    - family: Univolve2
       fonts:   
-        - asset: lib/assets/UI2.ttf
+        - asset: lib/assets/Univolve2.ttf
 
   
   # An image asset can refer to one or more resolution-specific "variants", see

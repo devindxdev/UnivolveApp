@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:univolve_app/assets/u_i2_icons.dart';
-import 'package:univolve_app/assets/univolve_icons2_icons.dart';
+import 'package:univolve_app/assets/univolve2_icons.dart';
+
 import 'package:univolve_app/assets/univolve_icons_icons.dart';
 import 'package:univolve_app/pages/PagesWithin/edit_profile.dart';
 import 'package:univolve_app/pages/PagesWithin/show_friends_page.dart';
@@ -203,7 +203,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   child: Container(
                     child: Row(
                       children: [
-                        Icon(UI2.paint_board_and_brush, color: Colors.white),
+                        Icon(Univolve2.paint_board_and_brush,
+                            color: Colors.white),
                         SizedBox(width: 8),
                         Text('Customize Profile',
                             style: GoogleFonts.poppins(
@@ -301,11 +302,11 @@ class _ProfilePageState extends State<ProfilePage> {
   IconData _getSocialIcon(String key) {
     switch (key) {
       case 'LinkedIn':
-        return UI2.git_hub;
+        return Univolve2.linkedin;
       case 'Instagram':
-        return UI2.instagram;
+        return Univolve2.instagram;
       case 'Github':
-        return UI2.linkedin;
+        return Univolve2.profile_1;
       default:
         return Icons.link_rounded;
     }

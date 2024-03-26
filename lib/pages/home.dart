@@ -15,11 +15,43 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String? userName;
   List<Map<String, dynamic>> eventDetails = [];
+  List<Map<String, dynamic>> trendingEvents = [];
 
   @override
   void initState() {
     super.initState();
     _fetchUserNameAndSignedUpEvents();
+    _fetchTrendingEvents();
+  }
+
+  Future<void> _fetchTrendingEvents() async {
+    try {
+      // Fetch the top 7 events ordered by 'likeCount' in descending order
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('events')
+          .orderBy('likeCount', descending: true)
+          .limit(7)
+          .get();
+
+      List<Map<String, dynamic>> fetchedTrendingEvents = querySnapshot.docs
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .toList();
+
+      setState(() {
+        trendingEvents = fetchedTrendingEvents;
+      });
+    } catch (e) {
+      print("Error fetching trending events: $e");
+    }
+  }
+
+  String getPhotoUrl(dynamic user) {
+    // Access the user document's data as a map
+    var userData = user.data() as Map<String, dynamic>;
+
+    // Use the null-aware operator to check for 'photoUrl' and provide a default value
+    return userData['photoUrl'] ??
+        'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/defaultProfilePhoto.png';
   }
 
   Future<void> _fetchUserNameAndSignedUpEvents() async {
@@ -147,13 +179,97 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // Another Text Widget
               Text(
-                'Another Section',
+                'Trending Events',
                 style: GoogleFonts.poppins(
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              // Any other widgets you want to include
+              Container(
+                height: 200, // Adjust based on your card size
+                child: ListView.builder(
+                  scrollDirection: Axis.vertical,
+                  itemCount: trendingEvents.length,
+                  itemBuilder: (context, index) {
+                    final event = trendingEvents[index];
+                    return EventCard(
+                      imagePath: event['imagePath'] ?? 'defaultImagePath',
+                      title: event['title'] ?? 'No Title',
+                      date: event['date'] != null
+                          ? formatTimestampToString(event['date'])
+                          : 'No Date',
+                      time: event['time'] ?? 'No Time',
+                      location: event['location'] ?? 'No Location',
+                      likeCount: event['likeCount'] ?? 0,
+                      type: event['type'] ?? 'No Type',
+                      documentId: event['documentId'] ?? 'No Document ID',
+                    );
+                  },
+                ),
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Friend Suggestions',
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              SizedBox(height: 15), // Add some spacing
+// Grid of friend suggestions
+              Container(
+                height: 380, // Set a height for the GridView container
+                child: StreamBuilder(
+                  stream: FirebaseFirestore.instance
+                      .collection('users')
+                      .snapshots(),
+                  builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if (!snapshot.hasData) return CircularProgressIndicator();
+                    var documents = snapshot.data!.docs;
+
+                    return GridView.builder(
+                      shrinkWrap: true,
+                      physics:
+                          NeverScrollableScrollPhysics(), // to disable GridView's scrolling
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        mainAxisSpacing: 0,
+                        crossAxisCount: 3, // Number of columns
+                        childAspectRatio:
+                            2 / 3, // Aspect ratio of each grid cell
+                      ),
+                      itemCount: documents.length,
+                      itemBuilder: (context, index) {
+                        var user = documents[index];
+                        return GridTile(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              CircleAvatar(
+                                radius: 40, // Size of the avatar
+                                backgroundImage:
+                                    NetworkImage(getPhotoUrl(user)),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                user.get('username') ?? 'Unavailable',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              Text(
+                                '#mutualFriends',
+                                style: GoogleFonts.poppins(fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
             ],
           ),
         ),
