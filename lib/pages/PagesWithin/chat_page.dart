@@ -40,6 +40,8 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
     // Push an initial message when the page is first initialized
+    //Ai Integration done
+    print("Chat Page Initialized");
     _pushInitialMessage();
   }
 
