@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:univolve_app/pages/PagesWithin/ai_bot.dart';
+import 'package:univolve_app/pages/PagesWithin/chat_page.dart';
 import 'package:univolve_app/pages/PagesWithin/event_detail_page.dart';
 import 'package:univolve_app/pages/assetUIElements/event_card_long.dart'; // Make sure the path matches your EventCard widget
 
@@ -191,7 +192,7 @@ class _EventsPageState extends State<EventsPage> {
             onPressed: () {
               // Add navigation to new page
               Navigator.push(context, MaterialPageRoute(builder: (_) {
-                return ChatBot();
+                return ChatPage();
               }));
             },
             icon: Icon(Icons.help_outline),

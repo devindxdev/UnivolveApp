@@ -306,7 +306,7 @@ class _ProfilePageState extends State<ProfilePage> {
       case 'Instagram':
         return Univolve2.instagram;
       case 'Github':
-        return Univolve2.profile_1;
+        return Univolve2.github;
       default:
         return Icons.link_rounded;
     }

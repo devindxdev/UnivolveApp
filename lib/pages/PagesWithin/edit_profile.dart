@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:univolve_app/assets/univolve2_icons.dart';
 
 class EditProfilePage extends StatefulWidget {
   final Map<String, dynamic> userData;
@@ -645,8 +646,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
           _buildTextInputRow('TRU Club', _truClubController),
 
           SizedBox(height: 16),
-
-          // New UI for Position in Club - Dropdown
           _buildDropdownRow(
               'Position in Club', _positionController, clubPositions),
 
@@ -664,7 +663,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           SizedBox(height: 16),
           Row(
             children: [
-              Icon(Icons.link, color: Colors.grey),
+              Icon(Univolve2.linkedin, color: Colors.grey),
               SizedBox(width: 8),
               Expanded(
                 child: Container(
@@ -690,7 +689,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           SizedBox(height: 16),
           Row(
             children: [
-              Icon(Icons.link, color: Colors.grey),
+              Icon(Univolve2.github, color: Colors.grey),
               SizedBox(width: 8),
               Expanded(
                 child: Container(
@@ -716,7 +715,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           SizedBox(height: 16),
           Row(
             children: [
-              Icon(Icons.link, color: Colors.grey),
+              Icon(Icons.link_sharp, color: Colors.grey),
               SizedBox(width: 8),
               Expanded(
                 child: Container(
@@ -742,7 +741,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           SizedBox(height: 16),
           Row(
             children: [
-              Icon(Icons.link, color: Colors.grey),
+              Icon(Univolve2.instagram, color: Colors.grey),
               SizedBox(width: 8),
               Expanded(
                 child: Container(

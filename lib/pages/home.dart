@@ -145,10 +145,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // Horizontal list view for event cards
               Container(
-                width: 330,
                 height: 200, // Adjust the height as needed
                 child: ListView.builder(
-                  scrollDirection: Axis.vertical,
+                  scrollDirection: Axis.horizontal,
                   itemCount: eventDetails.length,
                   itemBuilder: (context, index) {
                     final data = eventDetails[index];
@@ -157,6 +156,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     // Ensure you handle null values appropriately before here
                     return Container(
+                      width: 330,
                       child: EventCard(
                         imagePath: data['imagePath'] ??
                             'defaultImagePath', // Example of handling null
@@ -188,21 +188,24 @@ class _HomeScreenState extends State<HomeScreen> {
               Container(
                 height: 200, // Adjust based on your card size
                 child: ListView.builder(
-                  scrollDirection: Axis.vertical,
+                  scrollDirection: Axis.horizontal,
                   itemCount: trendingEvents.length,
                   itemBuilder: (context, index) {
                     final event = trendingEvents[index];
-                    return EventCard(
-                      imagePath: event['imagePath'] ?? 'defaultImagePath',
-                      title: event['title'] ?? 'No Title',
-                      date: event['date'] != null
-                          ? formatTimestampToString(event['date'])
-                          : 'No Date',
-                      time: event['time'] ?? 'No Time',
-                      location: event['location'] ?? 'No Location',
-                      likeCount: event['likeCount'] ?? 0,
-                      type: event['type'] ?? 'No Type',
-                      documentId: event['documentId'] ?? 'No Document ID',
+                    return Container(
+                      width: 330,
+                      child: EventCard(
+                        imagePath: event['imagePath'] ?? 'defaultImagePath',
+                        title: event['title'] ?? 'No Title',
+                        date: event['date'] != null
+                            ? formatTimestampToString(event['date'])
+                            : 'No Date',
+                        time: event['time'] ?? 'No Time',
+                        location: event['location'] ?? 'No Location',
+                        likeCount: event['likeCount'] ?? 0,
+                        type: event['type'] ?? 'No Type',
+                        documentId: event['documentId'] ?? 'No Document ID',
+                      ),
                     );
                   },
                 ),

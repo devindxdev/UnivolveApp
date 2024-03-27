@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:univolve_app/assets/univolve2_icons.dart';
 import 'package:univolve_app/assets/univolve_icons_icons.dart';
 import 'package:univolve_app/pages/services/database_service.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -83,28 +84,28 @@ class _UserDrawerState extends State<UserDrawer> {
           ),
           ListTile(
             title: Text('Profile', style: GoogleFonts.poppins()),
-            leading: Icon(UnivolveIcons.profile),
+            leading: Icon(Univolve2.profile_1),
             onTap: () {
               Navigator.pushNamed(context, '/profile');
             },
           ),
           ListTile(
             title: Text('Settings', style: GoogleFonts.poppins()),
-            leading: Icon(Icons.settings),
+            leading: Icon(Univolve2.setting__2_),
             onTap: () {
               Navigator.pushNamed(context, '/settings');
             },
           ),
           ListTile(
             title: Text('About', style: GoogleFonts.poppins()),
-            leading: Icon(Icons.info),
+            leading: Icon(Univolve2.about),
             onTap: () {
               Navigator.pushNamed(context, '/about');
             },
           ),
           ListTile(
             title: Text('Sign Out', style: GoogleFonts.poppins()),
-            leading: Icon(Icons.exit_to_app),
+            leading: Icon(Univolve2.logout),
             onTap: () {
               FirebaseAuth.instance.signOut();
             },
@@ -137,30 +138,30 @@ class _UserDrawerState extends State<UserDrawer> {
             onTap: () => _launchURL('https://moodle.tru.ca/login/index.php'),
           ),
           _createDrawerItem(
-            icon: Icons.web,
+            icon: Univolve2.tru_logo,
             text: 'myTRU',
             onTap: () => _launchURL('https://mytru.tru.ca/'),
           ),
           _createDrawerItem(
-            icon: Icons.calendar_today,
+            icon: Univolve2.calendar_clock,
             text: 'Course Timetable',
             onTap: () => _launchURL(
                 'https://reg-prod.ec.tru.ca/StudentRegistrationSsb/ssb/registrationHistory/registrationHistory'),
           ),
           _createDrawerItem(
-            icon: Icons.description,
+            icon: Univolve2.checklist,
             text: 'View Transcript',
             onTap: () => _launchURL(
                 'https://ssb-prod.ec.tru.ca/ssomanager/saml/login?relayState=/c/auth/SSB?pkg=bwskotrn.P_ViewTermTran'),
           ),
           _createDrawerItem(
-            icon: Icons.assessment,
+            icon: Univolve2.register,
             text: 'Degree Works',
             onTap: () =>
                 _launchURL('https://dw-prod.ec.tru.ca/responsiveDashboard'),
           ),
           _createDrawerItem(
-            icon: Icons.account_balance_wallet,
+            icon: Univolve2.accounting,
             text: 'Financial Account Summary',
             onTap: () => _launchURL(
                 'https://ssb-prod.ec.tru.ca/ssomanager/saml/login?relayState=/c/auth/SSB?pkg=bwskoacc.P_ViewAcct'),

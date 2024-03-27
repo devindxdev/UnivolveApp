@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:univolve_app/assets/univolve2_icons.dart';
 import 'package:univolve_app/assets/univolve_icons_icons.dart';
 import 'package:univolve_app/pages/PagesWithin/search_user_page.dart';
 import 'package:univolve_app/pages/assetUIElements/drawer.dart';
@@ -106,7 +107,7 @@ class _HomePageState extends State<HomePage> {
         appBar: AppBar(
           leading: IconButton(
             icon: Icon(
-              Icons.menu,
+              Univolve2.screenshot_2024_03_20_at_4_56_46_pm,
               color: Colors.black,
             ), // Custom icon
             onPressed: () {
@@ -116,7 +117,7 @@ class _HomePageState extends State<HomePage> {
           ),
           actions: [
             IconButton(
-              icon: Icon(Icons.search),
+              icon: Icon(Univolve2.searching_a_person),
               color: Colors.black,
               onPressed: () {
                 // Add navigation to new page using navigator
