@@ -43,3 +43,4 @@ app.*.map.json
 /android/app/release
 
 lib/pages/services/const.dart
+const.dart
