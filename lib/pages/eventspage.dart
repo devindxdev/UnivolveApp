@@ -188,14 +188,39 @@ class _EventsPageState extends State<EventsPage> {
       appBar: AppBar(
         title: Text('Events', style: GoogleFonts.poppins()),
         actions: [
-          IconButton(
-            onPressed: () {
+          GestureDetector(
+            onTap: () {
               // Add navigation to new page
               Navigator.push(context, MaterialPageRoute(builder: (_) {
                 return ChatPage();
               }));
             },
-            icon: Icon(Icons.help_outline),
+            child: Container(
+              margin: EdgeInsets.only(right: 10),
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: Color(0xff016D77), // Background color
+                borderRadius: BorderRadius.circular(20.0), // Rounded corners
+              ),
+              child: Row(
+                mainAxisSize:
+                    MainAxisSize.min, // To align children in the center
+                children: [
+                  Text(
+                    'Ask AI about Events',
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      color: Colors.white, // Text color
+                    ),
+                  ),
+                  SizedBox(width: 5), // Adjust spacing between text and icon
+                  Icon(
+                    Icons.android,
+                    color: Colors.white, // Icon color
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -216,6 +241,7 @@ class _EventsPageState extends State<EventsPage> {
                   }
                   var data =
                       eventDocuments[index].data() as Map<String, dynamic>;
+                  print(data);
                   return GestureDetector(
                     onTap: () {
                       // Add navigation to the event details page

@@ -1,10 +1,11 @@
+import 'dart:convert';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dart_openai/dart_openai.dart' as openai_dart;
 import 'package:dash_chat_2/dash_chat_2.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 //import sdk
-
-import 'package:univolve_app/pages/services/const.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({Key? key});
@@ -15,7 +16,7 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   final _openAI = OpenAI.instance.build(
-    token: OPENAI_API_KEY,
+    token: "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",
     baseOption: HttpSetup(
       receiveTimeout: const Duration(
         seconds: 5,
@@ -39,26 +40,63 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-    // Push an initial message when the page is first initialized
-    //Ai Integration done
-    print("Chat Page Initialized");
-    _pushInitialMessage();
+    fetchDataFromFirestore();
+  }
+
+  Future<void> fetchDataFromFirestore() async {
+    try {
+      var querySnapshot =
+          await FirebaseFirestore.instance.collection('events').get();
+      List<Map<String, dynamic>> eventData =
+          querySnapshot.docs.map((doc) => doc.data()).toList();
+
+      // Convert eventData to JSON
+      String eventDataJson = convertDataToJson(eventData);
+
+      // Push initial message with event data
+      _pushInitialMessage(eventDataJson);
+    } catch (error) {
+      print("Error fetching data from Firestore: $error");
+      // Handle error appropriately
+    }
+  }
+
+  String convertDataToJson(List<Map<String, dynamic>> eventData) {
+    List<Map<String, dynamic>> jsonData = [];
+
+    for (var event in eventData) {
+      Map<String, dynamic> jsonEvent = {};
+      event.forEach((key, value) {
+        if (value is Timestamp) {
+          // Convert Timestamp to milliseconds since epoch
+          jsonEvent[key] = value.millisecondsSinceEpoch;
+        } else {
+          jsonEvent[key] = value;
+        }
+      });
+      jsonData.add(jsonEvent);
+    }
+
+    return jsonEncode(jsonData);
   }
 
   // Function to push initial message
-  void _pushInitialMessage() {
-    // Construct an initial message with system prompt and event data
+  // Function to push initial message with event data
+  void _pushInitialMessage(String eventDataJson) {
+    // Construct initial message with event data
     final initialMessage = ChatMessage(
       text:
           '''HI act like a guide for events who knows things about some recent events happening at TRU, You have data of all the events, if user requests to know anything just give information as per that data. Do not answer anything if it not relevant to this use case and say you strictly prohibited
           
           
-          We have a basketBall event coming up on 20th of this month at old main at 10:00 am.
-          We have a badminthon event coming up on 25th of this month at old main at 10:00 am.
+          $eventDataJson
+
+          now you will be asked the questions about the events happening at TRU from the user ahead. Act like a helper and greet user first. 
           ''',
       user: _currentUser,
       createdAt: DateTime.now(),
     );
+
     // Add the initial message to the chat
     getChatResponse(initialMessage);
   }
@@ -67,6 +105,12 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         centerTitle: true,
         backgroundColor: const Color(0xff016D77),
         title: const Text(
@@ -80,14 +124,19 @@ class _ChatPageState extends State<ChatPage> {
         currentUser: _currentUser,
         typingUsers: _typingUsers,
         messageOptions: const MessageOptions(
-          currentUserContainerColor: Colors.black,
-          containerColor: const Color(0xff016D77),
-          textColor: Colors.white,
+          containerColor: Color.fromARGB(255, 222, 222, 222),
+          currentUserContainerColor: const Color(0xff016D77),
+          textColor: Colors.black,
         ),
         onSend: (ChatMessage m) {
           getChatResponse(m);
         },
-        messages: _messages,
+        messages: _messages.reversed
+            .skip(1)
+            .toList()
+            .reversed
+            .toList(), // Reverse twice
+// Reverse and skip the first message
       ),
     );
   }

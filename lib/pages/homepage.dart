@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:univolve_app/assets/univolve2_icons.dart';
 import 'package:univolve_app/assets/univolve_icons_icons.dart';
+import 'package:univolve_app/pages/PagesWithin/ai_bot.dart';
 import 'package:univolve_app/pages/PagesWithin/search_user_page.dart';
 import 'package:univolve_app/pages/assetUIElements/drawer.dart';
 import 'package:univolve_app/pages/eventspage.dart';
@@ -131,6 +132,18 @@ class _HomePageState extends State<HomePage> {
           centerTitle: true,
           backgroundColor: Colors.transparent,
           elevation: 0,
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            // Navigate to the AIBot page
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AIBot()),
+            );
+          },
+          child: Icon(Icons.chat,
+              color: Colors.white), // Change the icon as needed
+          backgroundColor: Color(0xff016D77), // Change the color as needed
         ),
         drawer: UserDrawer(),
         body: _pages[_selectedIndex],
