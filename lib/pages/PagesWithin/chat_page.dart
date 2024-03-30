@@ -16,7 +16,7 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   final _openAI = OpenAI.instance.build(
-    token: "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",
+    token: "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",
     baseOption: HttpSetup(
       receiveTimeout: const Duration(
         seconds: 5,

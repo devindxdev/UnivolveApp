@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:univolve_app/assets/univolve2_icons.dart';
+import 'package:univolve_app/pages/PagesWithin/ai_bot.dart';
+import 'package:univolve_app/pages/PagesWithin/event_detail_page.dart';
 import 'package:univolve_app/pages/assetUIElements/event_card_long.dart';
 import 'package:univolve_app/pages/services/database_service.dart';
 
@@ -100,6 +103,35 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: Container(
+        width: 140, // Set the desired width here
+        child: FloatingActionButton(
+          backgroundColor: Color(0xff016D77),
+          onPressed: () {
+            // Navigate to the AIBot page
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AIBot()),
+            );
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Univolve2.univolveicon, color: Colors.white),
+              SizedBox(width: 8),
+              // Add a text widget to display the text
+              Text(
+                'AdvisorAI',
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -192,19 +224,31 @@ class _HomeScreenState extends State<HomeScreen> {
                   itemCount: trendingEvents.length,
                   itemBuilder: (context, index) {
                     final event = trendingEvents[index];
-                    return Container(
-                      width: 330,
-                      child: EventCard(
-                        imagePath: event['imagePath'] ?? 'defaultImagePath',
-                        title: event['title'] ?? 'No Title',
-                        date: event['date'] != null
-                            ? formatTimestampToString(event['date'])
-                            : 'No Date',
-                        time: event['time'] ?? 'No Time',
-                        location: event['location'] ?? 'No Location',
-                        likeCount: event['likeCount'] ?? 0,
-                        type: event['type'] ?? 'No Type',
-                        documentId: event['documentId'] ?? 'No Document ID',
+                    return GestureDetector(
+                      onTap: () {
+                        // Add navigation to the event details page
+
+                        // Navigator.push(context, MaterialPageRoute(builder: (_) {
+                        //   return EventDetailsPage(
+                        //     imagePath: data['imagePath'],
+                        //     documentId: eventDocument[index].id,
+                        //   );
+                        // }));
+                      },
+                      child: Container(
+                        width: 330,
+                        child: EventCard(
+                          imagePath: event['imagePath'] ?? 'defaultImagePath',
+                          title: event['title'] ?? 'No Title',
+                          date: event['date'] != null
+                              ? formatTimestampToString(event['date'])
+                              : 'No Date',
+                          time: event['time'] ?? 'No Time',
+                          location: event['location'] ?? 'No Location',
+                          likeCount: event['likeCount'] ?? 0,
+                          type: event['type'] ?? 'No Type',
+                          documentId: event['documentId'] ?? 'No Document ID',
+                        ),
                       ),
                     );
                   },

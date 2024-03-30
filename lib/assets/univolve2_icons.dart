@@ -34,6 +34,7 @@ class Univolve2 {
   static const IconData notification = IconData(0xe806, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData checklist = IconData(0xe807, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData down_chevron = IconData(0xe808, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData univolveicon = IconData(0xe809, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData friends = IconData(0xe80a, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData heart = IconData(0xe80c, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData linkedin = IconData(0xe80e, fontFamily: _kFontFam, fontPackage: _kFontPkg);

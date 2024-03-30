@@ -34,8 +34,6 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     super.initState();
     fetchAndSetUserDetails();
-    //print user details
-    print(userDetails);
   }
 
   void fetchAndSetUserDetails() async {
@@ -127,10 +125,47 @@ class _ProfilePageState extends State<ProfilePage> {
                 SizedBox(width: 8),
                 GestureDetector(
                   onTap: () {
-                    // Add navigation to the EditProfilePage
-                    // Navigator.push(context, MaterialPageRoute(builder: (_) {
-                    //   return EditProfilePage(userData: userDetails);
-                    // }));
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Column(
+                            children: [
+                              Text(userDetails!['truClub'] ?? 'Club Name',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 24)),
+                              SizedBox(height: 18),
+                              Text(
+                                'Position in the Club:',
+                                style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.w500, fontSize: 16),
+                              ),
+                              Text(
+                                userDetails!['positionInClub'] ??
+                                    'Position not available',
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text(
+                                "Close",
+                              ),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
                   },
                   child: Text(
                     (userDetails!['truClub'].isNotEmpty)
@@ -173,7 +208,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.share, color: Colors.white),
+                        const Icon(Univolve2.qr_code, color: Colors.white),
                         const SizedBox(width: 8),
                         Text('Share Profile',
                             style: GoogleFonts.poppins(
@@ -288,7 +323,10 @@ class _ProfilePageState extends State<ProfilePage> {
         iconList.add(
           GestureDetector(
             onTap: () => _launchURL(value.toString()),
-            child: Icon(iconData),
+            child: Icon(
+              iconData,
+              size: 35,
+            ),
           ),
         );
       }

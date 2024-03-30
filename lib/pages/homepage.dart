@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:univolve_app/assets/univolve2_icons.dart';
 import 'package:univolve_app/assets/univolve_icons_icons.dart';
@@ -11,6 +12,7 @@ import 'package:univolve_app/pages/PagesWithin/search_user_page.dart';
 import 'package:univolve_app/pages/assetUIElements/drawer.dart';
 import 'package:univolve_app/pages/eventspage.dart';
 import 'package:univolve_app/pages/home.dart';
+import 'package:univolve_app/pages/notification_page.dart';
 import 'package:univolve_app/pages/profile_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -81,20 +83,21 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     ),
-    Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text('Welcome to the notification page'),
-          MaterialButton(
-            onPressed: () {
-              FirebaseAuth.instance.signOut();
-            },
-            child: Text('Sign Out'),
-          ),
-        ],
-      ),
-    ),
+    // Center(
+    //   child: Column(
+    //     mainAxisAlignment: MainAxisAlignment.center,
+    //     children: <Widget>[
+    //       Text('Welcome to the notification page'),
+    //       MaterialButton(
+    //         onPressed: () {
+    //           FirebaseAuth.instance.signOut();
+    //         },
+    //         child: Text('Sign Out'),
+    //       ),
+    //     ],
+    //   ),
+    // ),
+    NotificationsPage(),
     HomeScreen(),
     EventsPage(),
     ProfilePage(),
@@ -133,18 +136,9 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: Colors.transparent,
           elevation: 0,
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            // Navigate to the AIBot page
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => AIBot()),
-            );
-          },
-          child: Icon(Icons.chat,
-              color: Colors.white), // Change the icon as needed
-          backgroundColor: Color(0xff016D77), // Change the color as needed
-        ),
+
+        // Change the icon as needed
+
         drawer: UserDrawer(),
         body: _pages[_selectedIndex],
         bottomNavigationBar: Container(

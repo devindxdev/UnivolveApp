@@ -117,7 +117,7 @@ class _EventsPageState extends State<EventsPage> {
   Future<void> _fetchInitialData() async {
     var query = FirebaseFirestore.instance
         .collection('events')
-        .orderBy('date') // Assuming there is a 'date' field to sort by
+        .orderBy('date')
         .limit(pageSize);
 
     var querySnapshot = await query.get();
