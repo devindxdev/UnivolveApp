@@ -17,7 +17,7 @@ class AIBot extends StatefulWidget {
 
 class _AIBotState extends State<AIBot> {
   final _openAI = OpenAI.instance.build(
-    token: "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",
+    token: "APIKEY",
     baseOption: HttpSetup(
       receiveTimeout: const Duration(
         seconds: 5,
