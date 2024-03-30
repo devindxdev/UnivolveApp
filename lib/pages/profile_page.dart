@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:univolve_app/assets/univolve2_icons.dart';
-
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:univolve_app/assets/univolve_icons_icons.dart';
 import 'package:univolve_app/pages/PagesWithin/edit_profile.dart';
 import 'package:univolve_app/pages/PagesWithin/show_friends_page.dart';
@@ -18,6 +20,8 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  String buttonText = 'Connect to TRU';
+  final TextEditingController _passwordController = TextEditingController();
   final TextStyle _textStyleTitle = GoogleFonts.poppins(
     fontSize: 16,
     fontWeight: FontWeight.w600,
@@ -29,7 +33,6 @@ class _ProfilePageState extends State<ProfilePage> {
   // Create an instance of the UserService class
   final UserService _userService = UserService();
   Map<String, dynamic>? userDetails;
-
   @override
   void initState() {
     super.initState();
@@ -38,6 +41,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void fetchAndSetUserDetails() async {
     userDetails = await _userService.fetchUserDetails();
+    print(userDetails);
     if (mounted) {
       setState(() {});
     }
@@ -293,6 +297,26 @@ class _ProfilePageState extends State<ProfilePage> {
                           _buildSocialIcons(userDetails!['socialMediaHandles']),
                     ),
                   ),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: ElevatedButton(
+                      onPressed: () => _showPasswordDialog(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xff016D77), // Background color
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12.0),
+                        child: Text(
+                          buttonText,
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
                 ],
               ),
             ),
@@ -360,5 +384,103 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       );
     }
+  }
+
+  void _showPasswordDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Enter Password'),
+          content: TextField(
+            controller: _passwordController,
+            obscureText: true,
+            decoration: InputDecoration(
+              hintText: 'Password',
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Send'),
+              onPressed: () {
+                String password = _passwordController.text;
+                _passwordController.clear();
+                Navigator.of(context)
+                    .pop(); // Close the dialog before async operation
+
+                // Async call to fetch courses with the password
+                fetchCourses(password).then((_) {
+                  // Handle success in here if needed
+                }).catchError((error) {
+                  // Optionally handle errors or update UI in case of failure
+                  print(error);
+                  // For UI updates, remember to use setState if necessary
+                  setState(() {
+                    buttonText = 'Connection Failed';
+                  });
+                });
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> fetchCourses(String password) async {
+    const String apiUrl = 'http://10.0.2.2:5000/api/get-courses';
+
+    String username = userDetails!['username'];
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {
+          'Username': username,
+          'Password': password,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Parse the response body as JSON
+        final responseData = jsonDecode(response.body);
+
+        // Print the parsed data
+        await addCoursesToUser(responseData).catchError((error) {
+          // Handle any errors that occur when adding courses to Firestore
+          print("Error adding courses to Firestore: $error");
+        });
+        setState(() {
+          buttonText = 'TRU Connected';
+          // You might want to do something with responseData here
+        });
+      } else {
+        setState(() {
+          buttonText = 'Connection Failed';
+        });
+        // Optionally, log the response body for a failed request
+        print('Failed with status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    } catch (e) {
+      print(e.toString());
+      setState(() {
+        buttonText = 'Connection Failed';
+      });
+    }
+  }
+
+  Future<void> addCoursesToUser(List<dynamic> courses) async {
+    var collection = FirebaseFirestore.instance.collection('users');
+    var docRef = collection.doc(userDetails!['universityId']);
+
+    await docRef.update({'courseSchedule': courses}).catchError(
+        (error) => print("Failed to update document: $error"));
   }
 }

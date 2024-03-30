@@ -6,6 +6,10 @@ import 'package:univolve_app/pages/PagesWithin/ai_bot.dart';
 import 'package:univolve_app/pages/PagesWithin/event_detail_page.dart';
 import 'package:univolve_app/pages/assetUIElements/event_card_long.dart';
 import 'package:univolve_app/pages/services/database_service.dart';
+import 'package:univolve_app/pages/services/course.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -15,6 +19,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final UserService _userService = UserService();
+  String nextClassInfo = "Fetching next class info...";
+  List<dynamic>? courseSchedule;
 
   String? userName;
   List<Map<String, dynamic>> eventDetails = [];
@@ -25,6 +31,10 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _fetchUserNameAndSignedUpEvents();
     _fetchTrendingEvents();
+    fetchUserData().then((_) {
+      // Only call fetchNextClassInfo after fetchUserData completes.
+      fetchNextClassInfo();
+    });
   }
 
   Future<void> _fetchTrendingEvents() async {
@@ -100,6 +110,26 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> fetchUserData() async {
+    var docRef =
+        FirebaseFirestore.instance.collection('users').doc("T00702923");
+    var snapshot = await docRef.get();
+
+    var data =
+        snapshot.data(); // Get the data once and store it in a local variable
+
+    // Use ?. and ?? to provide a fallback in case of null
+    if (snapshot.exists && data!.containsKey('courseSchedule') ?? false) {
+      setState(() {
+        courseSchedule = data?['courseSchedule'] as List<dynamic>?;
+      });
+    } else {
+      setState(() {
+        courseSchedule = null;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -162,10 +192,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: Colors.grey[600],
                 ),
               ),
-              SizedBox(height: 24),
+              SizedBox(height: 5),
               Divider(),
-              SizedBox(height: 24),
-
+              SizedBox(height: 5),
+              if (courseSchedule != null) buildOverviewSection(),
               // Text for following section
               Text(
                 'Following Events',
@@ -345,5 +375,85 @@ class _HomeScreenState extends State<HomeScreen> {
     String formattedDate =
         "${monthNames[dateTime.month - 1]} ${dateTime.day}, ${dateTime.year}";
     return formattedDate;
+  }
+
+  Widget buildOverviewSection() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Your Day',
+            style: GoogleFonts.poppins(
+              fontSize: 22,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          // Add a SizedBox for some spacing between the text widgets
+          SizedBox(height: 8.0),
+          // Display the next class info
+          Text(
+            nextClassInfo, // Use the nextClassInfo variable here
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void fetchNextClassInfo() async {
+    try {
+      // Check if courseSchedule is not null.
+      print(courseSchedule);
+      if (courseSchedule != null) {
+        // Process the course schedule to find the current or next class.
+        Map<String, dynamic>? classInfo =
+            CourseManager.findCurrentOrNextClass(courseSchedule);
+
+        // Construct the info string based on the found class.
+        String info;
+        if (classInfo != null) {
+          final courseName = classInfo['courseName'];
+          final occurringTime = classInfo['occuringTime'];
+          final location = classInfo['location'];
+          final instructor = classInfo['instructor'];
+          final status =
+              classInfo['status']; // This is either 'ongoing' or 'upcoming'
+
+          if (status == 'ongoing') {
+            info =
+                "Your class is currently ongoing,\n🏫 $courseName\n🧑 Professor $instructor\n🕗 $occurringTime\n📍 $location";
+          } else if (status == 'upcoming') {
+            info =
+                "You have an upcoming class soon.\n🏫 $courseName\n🧑 Professor $instructor\n🕗 $occurringTime\n📍 $location";
+          } else {
+            info = "No class information available."; // Fallback message
+          }
+        } else {
+          info =
+              "No more classes today! Perfect time for a study session or a little music. Enjoy your day to the fullest! 🌸";
+        }
+
+        setState(() {
+          nextClassInfo =
+              info; // Update your state with the received information.
+        });
+      } else {
+        // Handle the case where courseSchedule is null.
+        setState(() {
+          nextClassInfo = "No course schedule available.";
+        });
+      }
+    } catch (e) {
+      // Handle any errors that occur during fetching or setState call.
+      setState(() {
+        nextClassInfo = "Failed to fetch next class info.";
+      });
+      print(e.toString()); // Log the error.
+    }
   }
 }
