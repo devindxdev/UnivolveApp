@@ -17,7 +17,7 @@ class AIBot extends StatefulWidget {
 
 class _AIBotState extends State<AIBot> {
   final _openAI = OpenAI.instance.build(
-    token: "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",
+    token: "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",
     baseOption: HttpSetup(
       receiveTimeout: const Duration(
         seconds: 5,
@@ -109,7 +109,6 @@ class _AIBotState extends State<AIBot> {
 
   // Method to analyze reply from LLM and take appropriate action
   void analyzeAndHandleReply(String reply) {
-    pushReplyToUI(reply);
     print("Reply from GPT: $reply");
 
     int braceCount = 0;
@@ -117,6 +116,7 @@ class _AIBotState extends State<AIBot> {
     // Loop through the reply to find the first complete JSON object
     for (int i = 0; i < reply.length; i++) {
       if (reply[i] == '{') {
+        pushReplyToUI("Please wait while i get the information...");
         braceCount++;
         if (startIndex == -1)
           startIndex = i; // Mark the start of the JSON object
@@ -131,7 +131,7 @@ class _AIBotState extends State<AIBot> {
             print("The json has been decoded: Decoded JSON: $decoded");
 
             if (decoded is Map<String, dynamic>) {
-              print("Request handled successfully to manafeRequest");
+              print("Request handled successfully to manage Request");
 
               manageRequest(decoded);
               return; // Exit after handling the first valid JSON object
@@ -141,6 +141,8 @@ class _AIBotState extends State<AIBot> {
           }
           break; // Stop after the first match (remove this if you want to find all matches)
         }
+      } else {
+        pushReplyToUI(reply);
       }
     }
 
@@ -179,12 +181,23 @@ class _AIBotState extends State<AIBot> {
         // Success - Decode the response body to JSON and log it
         final response = await http.get(Uri.parse(url));
         final jsonResponse = jsonDecode(response.body);
+
+        _messages.insert(
+            0,
+            ChatMessage(
+              user: _gptChatUser, // Marking the user as the assistant
+              text: jsonEncode(jsonResponse), // Convert JSON response to string
+              createdAt: DateTime.now(),
+            ));
         print("The response from the API is: $jsonResponse");
 
         //push the string to Chat GPt to draft a suitable reply
 
-        final String prompt =
-            "Below are the prof details, summarize  how the prof is: $jsonResponse";
+        final String prompt = """
+Given the professor's details provided below, please create a concise summary that includes key insights such as their teaching style, areas of expertise, and any notable contributions or accolades. Aim to provide a balanced overview that would be helpful for students considering their courses. Here are the details:
+
+$jsonResponse
+""";
         print("Prompt for GPT: $prompt");
         final request = ChatCompleteText(
           model: GptTurbo0301ChatModel(),
@@ -231,22 +244,38 @@ class _AIBotState extends State<AIBot> {
   }
 
   // Method to push replies to the UI
+  // Method to push replies to the UI
   void pushReplyToUI(String reply) {
-    // This is where you could add the reply to your messages list and update the UI accordingly
-    setState(() {
-      _messages.insert(
-        0,
-        ChatMessage(
-          user: _gptChatUser,
-          createdAt: DateTime.now(),
-          text: reply,
-        ),
-      );
-    });
+    // Check if the reply contains "{" or "}" and skip adding to UI if it does
+    if (reply.contains("{") || reply.contains("}")) {
+      print("Skipping display of message with JSON content.");
+      return; // Skip adding this message to the UI
+    }
+
+    final existingIndex = _messages
+        .indexWhere((m) => m.text == reply && m.user.id == _gptChatUser.id);
+
+    // If the message doesn't already exist, add it
+    if (existingIndex == -1) {
+      setState(() {
+        _messages.insert(
+          0,
+          ChatMessage(
+            user: _gptChatUser,
+            createdAt: DateTime.now(),
+            text: reply,
+          ),
+        );
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    var filteredMessages = _messages
+        .where((msg) => !msg.text.contains('{') && !msg.text.contains('}'))
+        .toList();
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -265,54 +294,89 @@ class _AIBotState extends State<AIBot> {
         ),
       ),
       body: DashChat(
-        currentUser: _currentUser,
-        typingUsers: _typingUsers,
-        messageOptions: const MessageOptions(
-          containerColor: Color.fromARGB(255, 222, 222, 222),
-          currentUserContainerColor: const Color(0xff016D77),
-          textColor: Colors.black,
-        ),
-        onSend: (ChatMessage m) {
-          getChatResponse(m);
-        },
-        messages: _messages.reversed
-            .skip(1)
-            .toList()
-            .reversed
-            .toList(), // Reverse twice
+          currentUser: _currentUser,
+          typingUsers: _typingUsers,
+          messageOptions: const MessageOptions(
+            containerColor: Color.fromARGB(255, 222, 222, 222),
+            currentUserContainerColor: const Color(0xff016D77),
+            textColor: Colors.black,
+          ),
+          onSend: (ChatMessage m) {
+            getChatResponse(m);
+          },
+          messages: prepareMessagesForDisplay() // Reverse twice
 // Reverse and skip the first message
-      ),
+          ),
     );
   }
 
+  bool _isProcessingResponse = false;
+
   Future<void> getChatResponse(ChatMessage m) async {
+    if (_isProcessingResponse)
+      return; // Avoid handling responses simultaneously
+    _isProcessingResponse = true;
+
+    // Ensure the new user message is added to the state
     setState(() {
       _messages.insert(0, m);
       _typingUsers.add(_gptChatUser);
     });
 
-    // Convert _messages to a list of Maps instead of a list of Messages objects
-    List<Map<String, dynamic>> _messagesHistory = _messages.reversed.map((m) {
+    // Convert the full chat history to the format expected by the ChatGPT API
+    // This includes both user messages and bot responses
+    List<Map<String, dynamic>> messagesHistory =
+        _messages.reversed.map((message) {
       return {
-        "role": m.user == _currentUser ? "user" : "assistant",
-        "content": m.text,
+        "role": message.user == _currentUser ? "user" : "assistant",
+        "content": message.text,
       };
     }).toList();
 
     final request = ChatCompleteText(
       model: GptTurbo0301ChatModel(),
-      messages: _messagesHistory, // Now passing a List<Map<String, dynamic>>
+      messages: messagesHistory, // Pass the full conversation history
       maxToken: 200,
     );
 
+    // Sending the request to the ChatGPT API
     final response = await _openAI.onChatCompletion(request: request);
     for (var element in response!.choices) {
       if (element.message != null) {
+        // Handle the response, ensuring not to display JSON-like messages
         analyzeAndHandleReply(element.message!.content);
       }
     }
+
     setState(() {
       _typingUsers.remove(_gptChatUser);
     });
+    _isProcessingResponse = false; // Reset the flag after processing
+  }
+
+  void insertJsonDataAsMessage(Map<String, dynamic> jsonData) {
+    String jsonDataString = jsonEncode(jsonData);
+    _messages.insert(
+        0,
+        ChatMessage(
+          user: _gptChatUser, // or a designated system user
+          text: jsonDataString,
+          createdAt: DateTime.now(),
+        ));
+    // No need to call setState here if you're callin
+    //g it elsewhere to refresh the UI after message insertion
+  }
+
+  List<ChatMessage> prepareMessagesForDisplay() {
+    // Filter out JSON data from messages for display and reverse the list as needed
+    var filteredAndReversedMessages = _messages.reversed
+        .where((message) =>
+            !message.text.contains('{') &&
+            !message.text.contains('}')) // Exclude JSON messages
+        .toList()
+        .reversed
+        .toList(); // Apply any additional list manipulations as required
+
+    return filteredAndReversedMessages;
   }
 }

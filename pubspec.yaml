@@ -55,6 +55,11 @@ dependencies:
   dart_openai: ^5.1.0
   chat_gpt_sdk: ^3.0.4
   http: ^1.2.1
+  firebase_messaging: ^14.7.21
+  firebase_app_check: ^0.2.1+19
+  intl: ^0.18.1
+  timeago: ^3.6.1
+  flutter_local_notifications: ^17.0.0
 
   
 

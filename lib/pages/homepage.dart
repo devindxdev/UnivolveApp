@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +14,7 @@ import 'package:univolve_app/pages/home.dart';
 import 'package:univolve_app/pages/notification_page.dart';
 import 'package:univolve_app/pages/profile_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:univolve_app/pages/chat_screen.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -69,34 +69,7 @@ class _HomePageState extends State<HomePage> {
 
   //list of pages
   late final List<Widget> _pages = <Widget>[
-    Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text('Welcome to the chat page'),
-          MaterialButton(
-            onPressed: () {
-              FirebaseAuth.instance.signOut();
-            },
-            child: Text('Sign Out'),
-          ),
-        ],
-      ),
-    ),
-    // Center(
-    //   child: Column(
-    //     mainAxisAlignment: MainAxisAlignment.center,
-    //     children: <Widget>[
-    //       Text('Welcome to the notification page'),
-    //       MaterialButton(
-    //         onPressed: () {
-    //           FirebaseAuth.instance.signOut();
-    //         },
-    //         child: Text('Sign Out'),
-    //       ),
-    //     ],
-    //   ),
-    // ),
+    ChatScreen(),
     NotificationsPage(),
     HomeScreen(),
     EventsPage(),
