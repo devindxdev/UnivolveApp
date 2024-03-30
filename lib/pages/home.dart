@@ -6,6 +6,7 @@ import 'package:univolve_app/pages/PagesWithin/ai_bot.dart';
 import 'package:univolve_app/pages/PagesWithin/event_detail_page.dart';
 import 'package:univolve_app/pages/assetUIElements/event_card_long.dart';
 import 'package:univolve_app/pages/services/database_service.dart';
+import 'package:univolve_app/pages/services/weather_service.dart';
 import 'package:univolve_app/pages/services/course.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -408,7 +409,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void fetchNextClassInfo() async {
     try {
       // Check if courseSchedule is not null.
-      print(courseSchedule);
+      WeatherService weatherService = WeatherService();
+      String weatherComment = await weatherService.fetchWeatherInfo();
+      print(weatherComment);
       if (courseSchedule != null) {
         // Process the course schedule to find the current or next class.
         Map<String, dynamic>? classInfo =
@@ -426,10 +429,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
           if (status == 'ongoing') {
             info =
-                "Your class is currently ongoing,\n🏫 $courseName\n🧑 Professor $instructor\n🕗 $occurringTime\n📍 $location";
+                "Your class is currently ongoing,\n🏫 $courseName\n🧑 Professor $instructor\n🕗 $occurringTime\n📍 $location\n$weatherComment";
           } else if (status == 'upcoming') {
             info =
-                "You have an upcoming class soon.\n🏫 $courseName\n🧑 Professor $instructor\n🕗 $occurringTime\n📍 $location";
+                "You have an upcoming class soon.\n🏫 $courseName\n🧑 Professor $instructor\n🕗 $occurringTime\n📍 $location\n$weatherComment";
           } else {
             info = "No class information available."; // Fallback message
           }
