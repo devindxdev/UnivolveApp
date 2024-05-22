@@ -49,7 +49,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
       ),
       // Event Notification
       _buildEventNotificationCard(
-        'TRU Computer Science club has a lan party on April 16.',
+        'TRU Computer Science club has a lan party on May 16.',
         'Like',
         'Remove',
       ),
@@ -62,7 +62,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
       ),
       // Another Event Notification
       _buildEventNotificationCard(
-        'TRU Music Club has a jamming session on April 21.',
+        'TRU Music Club has a jamming session on May 21.',
         'Like',
         'Remove',
       ),

@@ -35,9 +35,6 @@ class _AIBotState extends State<AIBot> {
   List<ChatMessage> _messages = <ChatMessage>[];
   List<ChatUser> _typingUsers = <ChatUser>[];
 
-  // Define your event data as a string
-  static const String eventData = "Your event data here...";
-
   @override
   void initState() {
     super.initState();

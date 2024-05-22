@@ -198,47 +198,46 @@ class _HomeScreenState extends State<HomeScreen> {
               SizedBox(height: 5),
               if (courseSchedule != null) buildOverviewSection(),
               // Text for following section
-              Text(
-                'Following Events',
-                style: GoogleFonts.poppins(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
+              // if event details are not empty, only then display the text
+              if (eventDetails.isNotEmpty) ...[
+                Text(
+                  'Following Events',
+                  style: GoogleFonts.poppins(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
+                Container(
+                  height: 200, // Adjust the height as needed
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: eventDetails.length,
+                    itemBuilder: (context, index) {
+                      final data = eventDetails[index];
+                      // Log the data for the current card
+                      print("Event data for card: $data");
 
-              // Horizontal list view for event cards
-              Container(
-                height: 200, // Adjust the height as needed
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: eventDetails.length,
-                  itemBuilder: (context, index) {
-                    final data = eventDetails[index];
-                    print(
-                        "Event data for card: $data"); // Log the data for the current card
-
-                    // Ensure you handle null values appropriately before here
-                    return Container(
-                      width: 330,
-                      child: EventCard(
-                        imagePath: data['imagePath'] ??
-                            'defaultImagePath', // Example of handling null
-                        title: data['title'] ?? 'No Title',
-                        time: data['time'] ?? 'No Time',
-                        location: data['location'] ?? 'No Location',
-                        date: data['date'] != null
-                            ? formatTimestampToString(data['date'])
-                            : 'No Date',
-                        type: data['type'] ?? 'No Type',
-                        likeCount: data['likeCount'] ?? 0,
-                        documentId: data['documentId'] ?? 'No Document ID',
-                        // Continue for other fields
-                      ),
-                    );
-                  },
+                      // Return a custom widget for event cards
+                      return Container(
+                        width: 330,
+                        child: EventCard(
+                          imagePath: data['imagePath'] ?? 'defaultImagePath',
+                          title: data['title'] ?? 'No Title',
+                          time: data['time'] ?? 'No Time',
+                          location: data['location'] ?? 'No Location',
+                          date: data['date'] != null
+                              ? formatTimestampToString(data['date'])
+                              : 'No Date',
+                          type: data['type'] ?? 'No Type',
+                          likeCount: data['likeCount'] ?? 0,
+                          documentId: data['documentId'] ?? 'No Document ID',
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
-              SizedBox(height: 24),
+                SizedBox(height: 24),
+              ],
 
               // Another Text Widget
               Text(

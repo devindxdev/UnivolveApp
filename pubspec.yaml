@@ -60,6 +60,7 @@ dependencies:
   intl: ^0.18.1
   timeago: ^3.6.1
   flutter_local_notifications: ^17.0.0
+  groq: ^0.0.5
 
   
 

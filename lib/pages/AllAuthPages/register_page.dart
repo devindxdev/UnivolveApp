@@ -129,6 +129,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
           'LinkedIn': "",
           'Website': "",
         },
+        'friends': [],
+        'friendsCount': 0,
+        'truClub': '',
+        "positionInClub": "Not a member",
       });
       print("User details added successfully");
     } catch (e) {

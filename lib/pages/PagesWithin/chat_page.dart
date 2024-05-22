@@ -5,6 +5,8 @@ import 'package:dart_openai/dart_openai.dart' as openai_dart;
 import 'package:dash_chat_2/dash_chat_2.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
+import 'package:groq/groq.dart';
+
 //import sdk
 
 class ChatPage extends StatefulWidget {
@@ -34,9 +36,6 @@ class _ChatPageState extends State<ChatPage> {
   List<ChatMessage> _messages = <ChatMessage>[];
   List<ChatUser> _typingUsers = <ChatUser>[];
 
-  // Define your event data as a string
-  static const String eventData = "Your event data here...";
-
   @override
   void initState() {
     super.initState();
@@ -47,14 +46,24 @@ class _ChatPageState extends State<ChatPage> {
     try {
       var querySnapshot =
           await FirebaseFirestore.instance.collection('events').get();
-      List<Map<String, dynamic>> eventData =
-          querySnapshot.docs.map((doc) => doc.data()).toList();
-
-      // Convert eventData to JSON
+      List<Map<String, dynamic>> eventData = querySnapshot.docs.map((doc) {
+        Map<String, dynamic> data = doc.data();
+        // Extract only the required fields and format the date if necessary
+        return {
+          'title': data['title'],
+          'description': data['description'],
+          'time': data['time'],
+          // Format the timestamp to a more readable form if necessary
+          'date': (data['date'] as Timestamp).toDate().toString(),
+        };
+      }).toList();
+      // Convert filtered eventData to JSON
       String eventDataJson = convertDataToJson(eventData);
 
+      print(eventDataJson.length);
+      print(eventDataJson);
       // Push initial message with event data
-      _pushInitialMessage(eventDataJson);
+      // _pushInitialMessage(eventDataJson);
     } catch (error) {
       print("Error fetching data from Firestore: $error");
       // Handle error appropriately
@@ -80,7 +89,6 @@ class _ChatPageState extends State<ChatPage> {
     return jsonEncode(jsonData);
   }
 
-  // Function to push initial message
   // Function to push initial message with event data
   void _pushInitialMessage(String eventDataJson) {
     // Construct initial message with event data
@@ -147,34 +155,57 @@ class _ChatPageState extends State<ChatPage> {
       _typingUsers.add(_gptChatUser);
     });
 
-    // Convert _messages to a list of Maps instead of a list of Messages objects
-    List<Map<String, dynamic>> _messagesHistory = _messages.reversed.map((m) {
-      return {
-        "role": m.user == _currentUser ? "user" : "assistant",
-        "content": m.text,
-      };
-    }).toList();
+    // Send message to Groq and handle response
+    try {
+      // Convert _messages to a formatted string instead of a list of Maps
+      String chatHistory = _messages.reversed.map((m) {
+        // You could use different formatting or delimiters here
+        return "${m.user == _currentUser ? 'User: ' : 'Bot: '}${m.text}";
+      }).join("\n");
 
-    final request = ChatCompleteText(
-      model: GptTurbo0301ChatModel(),
-      messages: _messagesHistory, // Now passing a List<Map<String, dynamic>>
-      maxToken: 200,
-    );
+      // Include the current message in the context
+      String prompt = "$chatHistory\nUser: ${m.text}\nBot:";
 
-    final response = await _openAI.onChatCompletion(request: request);
-    for (var element in response!.choices) {
-      if (element.message != null) {
-        setState(() {
-          _messages.insert(
-            0,
-            ChatMessage(
-                user: _gptChatUser,
-                createdAt: DateTime.now(),
-                text: element.message!.content),
-          );
-        });
-      }
+      final groq = Groq(
+          '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',
+          model: GroqModel.llama370b8192);
+      groq.startChat();
+      GroqResponse groqResponse =
+          await groq.sendMessage(prompt); // Send the formatted string as prompt
+      ChatMessage responseMessage = ChatMessage(
+          user: _gptChatUser,
+          createdAt: DateTime.now(),
+          text: groqResponse.choices.first.message.content);
+      setState(() {
+        _messages.insert(0, responseMessage);
+      });
+    } catch (e) {
+      print("Error with Groq API: $e");
     }
+
+    //Use OPenAi
+    // else {
+    //   // Send message to OpenAI and handle response
+    //   final request = ChatCompleteText(
+    //     model: GptTurbo0301ChatModel(),
+    //     messages: _messagesHistory, // Passing a List<Map<String, dynamic>>
+    //     maxToken: 200,
+    //   );
+
+    //   final response = await _openAI.onChatCompletion(request: request);
+    //   for (var element in response!.choices) {
+    //     if (element.message != null) {
+    //       ChatMessage responseMessage = ChatMessage(
+    //           user: _gptChatUser,
+    //           createdAt: DateTime.now(),
+    //           text: element.message!.content);
+    //       setState(() {
+    //         _messages.insert(0, responseMessage);
+    //       });
+    //     }
+    //   }
+    // }
+
     setState(() {
       _typingUsers.remove(_gptChatUser);
     });

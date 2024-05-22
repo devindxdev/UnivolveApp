@@ -528,6 +528,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.0.6"
+  groq:
+    dependency: "direct main"
+    description:
+      name: groq
+      sha256: aa3b9c1423f722638ca963acbd412d783e10a13b8d815306c328458090ef3331
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.5"
   html:
     dependency: transitive
     description:
