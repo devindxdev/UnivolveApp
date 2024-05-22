@@ -166,9 +166,7 @@ class _ChatPageState extends State<ChatPage> {
       // Include the current message in the context
       String prompt = "$chatHistory\nUser: ${m.text}\nBot:";
 
-      final groq = Groq(
-          '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',
-          model: GroqModel.llama370b8192);
+      final groq = Groq('API Key here', model: GroqModel.llama370b8192);
       groq.startChat();
       GroqResponse groqResponse =
           await groq.sendMessage(prompt); // Send the formatted string as prompt
