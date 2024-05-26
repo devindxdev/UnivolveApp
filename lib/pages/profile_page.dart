@@ -298,26 +298,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           _buildSocialIcons(userDetails!['socialMediaHandles']),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: ElevatedButton(
-                      onPressed: () => _showPasswordDialog(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xff016D77), // Background color
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 12.0),
-                        child: Text(
-                          buttonText,
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
+                  
                 ],
               ),
             ),
