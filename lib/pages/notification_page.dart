@@ -176,8 +176,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text('Notifications'),
+        backgroundColor: Colors.white,
       ),
       body: ListView(
         children: notifications,

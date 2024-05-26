@@ -80,13 +80,15 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Colors.white,
         key: _scaffoldKey,
         appBar: AppBar(
           leading: IconButton(
-            icon: Icon(
-              Univolve2.screenshot_2024_03_20_at_4_56_46_pm,
-              color: Colors.black,
-            ), // Custom icon
+            icon: Image.asset(
+              'lib/assets/images/menu.png', // Replace 'your_image.png' with the path to your image asset
+              width: 28, // Adjust width and height as needed
+              height: 28,
+            ),
             onPressed: () {
               // Open the drawer
               _scaffoldKey.currentState?.openDrawer();
@@ -94,7 +96,11 @@ class _HomePageState extends State<HomePage> {
           ),
           actions: [
             IconButton(
-              icon: Icon(Univolve2.searching_a_person),
+              icon: Image.asset(
+                'lib/assets/images/search.png', // Replace 'your_image.png' with the path to your image asset
+                width: 28, // Adjust width and height as needed
+                height: 28,
+              ),
               color: Colors.black,
               onPressed: () {
                 // Add navigation to new page using navigator
@@ -106,7 +112,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
           centerTitle: true,
-          backgroundColor: Colors.transparent,
+          backgroundColor: Colors.white,
           elevation: 0,
         ),
 

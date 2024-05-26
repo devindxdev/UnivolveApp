@@ -25,7 +25,7 @@ void main() async {
       await FirebaseMessaging.instance.requestPermission(provisional: true);
 
   await FirebaseMessaging.instance.setAutoInitEnabled(true);
-  final fcmToken = await FirebaseMessaging.instance.getToken();
+  final fcmToken = null; //await FirebaseMessaging.instance.getToken();
   print('FCM Token: $fcmToken');
 
 //1. Obtain current user doc

@@ -185,8 +185,10 @@ class _EventsPageState extends State<EventsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text('Events', style: GoogleFonts.poppins()),
+        backgroundColor: Colors.white,
         actions: [
           GestureDetector(
             onTap: () {

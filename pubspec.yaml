@@ -128,7 +128,8 @@ flutter:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: "AppIcon"
-  image_path: "lib/assets/images/appIcon.png"
+  image_path_android: "lib/assets/images/Univolve_Android.png"
+  image_path_ios: "lib/assets/images/Univolve_iOS.png"
   min_sdk_version: 21
   remove_alpha_ios: true
   adaptive_icon_background: "#ffffff"
@@ -138,8 +139,12 @@ flutter_launcher_icons:
 flutter_native_splash:
   color: "#016D77"
   image: "lib/assets/images/splash.png"
+  android: true
+  ios: true
   android_12:
     color: "#016D77"
     image: "lib/assets/images/splash.png"
-
+  android_gravity: center
+  ios_content_mode: scaleAspectFill
+  fullscreen: true  # Optional: Enable fullscreen splash
  

@@ -90,6 +90,7 @@ class _ProfilePageState extends State<ProfilePage> {
       ));
     }
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
