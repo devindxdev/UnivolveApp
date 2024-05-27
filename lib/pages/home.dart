@@ -113,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> fetchUserData() async {
     var docRef =
-        FirebaseFirestore.instance.collection('users').doc("T00702923");
+        FirebaseFirestore.instance.collection('connectToTRU').doc("T00704197");
     var snapshot = await docRef.get();
 
     var data =
