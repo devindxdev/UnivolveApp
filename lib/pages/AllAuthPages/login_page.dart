@@ -13,17 +13,32 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  //controller for email and password
+  // Controller for email and password
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  //function to sign in
+  bool _passwordVisible = false;
+
+  // Function to sign in
   Future signIn() async {
-    print(emailController.text + ' ' + passwordController.text);
+    String password = passwordController.text.trim();
+    String email = emailController.text.trim();
+
+    // Validate password
+    if (!isValidPassword(password)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Password must be 8-12 characters long, include uppercase, lowercase, number, and special character.'),
+          backgroundColor: Colors.grey[900],
+        ),
+      );
+      return;
+    }
+
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
+        email: email,
+        password: password,
       );
       print('User details are correct. Logging in...');
       // Navigator.of(context).pushReplacement(
@@ -40,7 +55,13 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  //dispose of the controllers
+  // Function to validate password
+  bool isValidPassword(String password) {
+    final passwordRegex = RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#\$&*~]).{8,12}$');
+    return passwordRegex.hasMatch(password);
+  }
+
+  // Dispose of the controllers
   @override
   void dispose() {
     emailController.dispose();
@@ -85,10 +106,20 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(height: 16.0),
               TextField(
                 controller: passwordController,
-                obscureText: true,
+                obscureText: !_passwordVisible,
                 decoration: InputDecoration(
                   labelText: 'Enter your password',
                   border: OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _passwordVisible ? Icons.visibility : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _passwordVisible = !_passwordVisible;
+                      });
+                    },
+                  ),
                 ),
               ),
               SizedBox(height: 6.0),

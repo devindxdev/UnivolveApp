@@ -17,8 +17,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController universityIdController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
+
+  bool _termsAccepted = true;
+  bool _passwordVisible = false;
+  bool _confirmPasswordVisible = false;
 
   //dispose of the controllers
   @override
@@ -31,63 +34,69 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
+  final RegExp passwordRegExp = RegExp(
+    r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,12}$',
+  );
+
   //signup function
   Future signUp() async {
-    // Check if any of the fields are empty
+    if (!_termsAccepted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('You must accept the terms and conditions to register.'),
+          backgroundColor: Colors.grey[900],
+        ),
+      );
+      return;
+    }
+
     if (usernameController.text.trim().isEmpty ||
         emailController.text.trim().isEmpty ||
         universityIdController.text.trim().isEmpty ||
         passwordController.text.trim().isEmpty ||
         confirmPasswordController.text.trim().isEmpty) {
-      // Display a SnackBar if any field is empty
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Please fill in all fields'),
           backgroundColor: Colors.grey[900],
         ),
       );
-      return; // Stop the function execution if any field is empty
+      return;
     }
 
-    // Proceed if passwords match and fields are not empty
-    if (passwordController.text.trim() ==
-        confirmPasswordController.text.trim()) {
+    if (!passwordRegExp.hasMatch(passwordController.text.trim())) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Password must be 8-12 characters long and include uppercase, lowercase, numbers, and special characters.'),
+          backgroundColor: Colors.grey[900],
+        ),
+      );
+      return;
+    }
+
+    if (passwordController.text.trim() == confirmPasswordController.text.trim()) {
       final String documentId = universityIdController.text.trim();
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(documentId)
-          .get();
+      final doc = await FirebaseFirestore.instance.collection('users').doc(documentId).get();
 
-      // Check if a user with the same student ID already exists
       if (doc.exists) {
-        // Fetch the email associated with the existing student ID
         String existingEmail = doc.data()?['email'] ?? 'No email available';
-
-        // Display a SnackBar if the student ID is already in use, including the associated email
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-                'Student ID is already in use by $existingEmail. Please either login using that or contact support.'),
+            content: Text('Student ID is already in use by $existingEmail. Please either login using that or contact support.'),
             backgroundColor: Colors.grey[900],
           ),
         );
-        return; // Stop the function execution if the student ID is already in use
+        return;
       }
 
       try {
-        // If the student ID is unique, proceed with user registration
-        final userCredential =
-            await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: emailController.text.trim(),
           password: passwordController.text.trim(),
         );
 
-        // After successful registration, add user details to Firestore
         await addUserdetails();
-
-        // Optionally, handle the userCredential as needed, e.g., storing additional user info
       } on FirebaseAuthException catch (e) {
-        // Handle Firebase Auth exceptions, e.g., email already in use
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(e.message ?? 'An error occurred. Please try again.'),
@@ -96,7 +105,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
       }
     } else {
-      // Display a SnackBar if passwords don't match
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Passwords don't match"),
@@ -106,23 +114,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  //add user details to the database to
+  //add user details to the database
   Future<void> addUserdetails() async {
     String documentId = universityIdController.text.trim();
-
     try {
       await FirebaseFirestore.instance.collection('users').doc(documentId).set({
         'username': usernameController.text.trim(),
         'email': emailController.text.trim(),
         'universityId': universityIdController.text.trim(),
-        'photoUrl':
-            'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/defaultProfilePhoto.png',
+        'photoUrl': 'https://raw.githubusercontent.com/Singh-Gursahib/Univolve/master/lib/assets/images/defaultProfilePhoto.png',
         'bio': "No bio provided yet..",
         'currentCourses': {},
         'interests': "",
         'likedEvents': [],
         'notificationEvents': [],
-        'program': "Not Choosen Yet",
+        'program': "Not Chosen Yet",
         'socialMediaHandles': {
           'Github': "",
           'Instagram': "",
@@ -138,6 +144,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } catch (e) {
       print("Error adding user details: $e");
     }
+  }
+
+  void _showTermsDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Terms and Conditions'),
+          content: SingleChildScrollView(
+            child: Text('Your terms and conditions go here...'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Decline'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _termsAccepted = true;
+                });
+                Navigator.of(context).pop();
+              },
+              child: Text('Accept'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -189,34 +226,75 @@ class _RegisterScreenState extends State<RegisterScreen> {
               SizedBox(height: 16.0),
               TextField(
                 controller: passwordController,
-                obscureText: true,
+                obscureText: !_passwordVisible,
                 decoration: InputDecoration(
                   labelText: 'Password',
                   border: OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _passwordVisible ? Icons.visibility : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _passwordVisible = !_passwordVisible;
+                      });
+                    },
+                  ),
                 ),
               ),
               SizedBox(height: 16.0),
               TextField(
                 controller: confirmPasswordController,
-                obscureText: true,
+                obscureText: !_confirmPasswordVisible,
                 decoration: InputDecoration(
-                  labelText: 'Confirm password',
+                  labelText: 'Confirm Password',
                   border: OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _confirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _confirmPasswordVisible = !_confirmPasswordVisible;
+                      });
+                    },
+                  ),
                 ),
               ),
               SizedBox(height: 24.0),
-              GestureDetector(
-                onTap: signUp,
-                child: Container(
-                  child: Text('Register',
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("By registering, you accepting our "),
+                  GestureDetector(
+                    onTap: _showTermsDialog,
+                    child: Text(
+                      'Terms & Conditions',
                       style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.bold)),
+                        color: Colors.blue,
+                        decoration: TextDecoration.underline,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 24.0),
+              GestureDetector(
+                onTap: _termsAccepted ? signUp : null,
+                child: Container(
+                  child: Text(
+                    'Register',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   padding: EdgeInsets.symmetric(vertical: 16.0),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: Color(0xff016D77),
+                    color: _termsAccepted ? Color(0xff016D77) : Colors.grey,
                     borderRadius: BorderRadius.circular(10.0),
                   ),
                 ),
@@ -228,8 +306,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('Already have an account? Login Now',
-                          style: TextStyle(color: Colors.black)),
+                      Text(
+                        'Already have an account? Login Now',
+                        style: TextStyle(color: Colors.black),
+                      ),
                     ],
                   ),
                 ),
