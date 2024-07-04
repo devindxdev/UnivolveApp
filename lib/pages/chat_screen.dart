@@ -108,19 +108,7 @@ class _ChatScreenState extends State<ChatScreen>
                     child: Text('Chat Room', style: _titleStyle),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 16.0, top: 8.0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                        "Welcome to our Chatroom! Engage in personal conversations or join course groups to connect, share, and learn together. Start chatting now!",
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w400,
-                          fontSize: 12.0,
-                          color: Colors.black,
-                        )),
-                  ),
-                ),
+                
                 SizedBox(height: 10),
                 SizedBox(height: 5),
                 Container(

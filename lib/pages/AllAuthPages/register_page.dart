@@ -34,10 +34,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  final RegExp passwordRegExp = RegExp(
-    r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,12}$',
-  );
-
+  final RegExp passwordRegExp = RegExp(r'.{8,}');
   //signup function
   Future signUp() async {
     if (!_termsAccepted) {
@@ -180,6 +177,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
@@ -203,7 +201,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               TextField(
                 controller: usernameController,
                 decoration: InputDecoration(
-                  labelText: 'Username',
+                  labelText: 'Your Name',
                   border: OutlineInputBorder(),
                 ),
               ),

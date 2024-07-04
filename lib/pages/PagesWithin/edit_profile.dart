@@ -110,22 +110,34 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   Future<void> fetchProgramOptions() async {
+  try {
     DocumentSnapshot snapshot = await FirebaseFirestore.instance
         .collection('assets')
         .doc('availablePrograms')
         .get();
+    print(snapshot.data()!);
     List<dynamic> programs = snapshot['programs'];
     setState(() {
       programOptions = List<String>.from(programs);
+      if (!programOptions.contains(_programController.text)) {
+        _programController.text = programOptions.first; // or 'Not Chosen Yet' if it's always present
+      }
+    });
+  } catch (e) {
+    print('Error fetching program options: $e');
+    // Set a default list if fetch fails
+    setState(() {
+      programOptions = ['Not Chosen Yet'];
     });
   }
+}
 
   Future<void> fetchClubPositions() async {
     DocumentSnapshot snapshot = await FirebaseFirestore.instance
         .collection('assets')
         .doc('clubPositions')
         .get();
-    List<dynamic> positions = snapshot['clubPositions'];
+    List<dynamic> positions = snapshot['positions'];
     setState(() {
       clubPositions = List<String>.from(positions);
     });
@@ -426,7 +438,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               Container(
                 width: 90,
                 child: Text(
-                  'Username',
+                  'Your Name',
                   style: GoogleFonts.poppins(
                     fontSize: 14.0,
                     fontWeight: FontWeight.w600,
@@ -448,13 +460,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     style: GoogleFonts.poppins(fontSize: 14.0),
                     controller: _usernameController,
                     decoration: InputDecoration(
-                      hintText: 'Enter your username',
+                      hintText: 'Enter your name',
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.symmetric(horizontal: 10.0),
                     ),
                     validator: (value) {
                       if (value!.trim().isEmpty) {
-                        return 'Username cannot be empty';
+                        return 'Your name cannot be empty';
                       }
                       return null;
                     },
@@ -488,31 +500,32 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     borderRadius: BorderRadius.circular(10.0),
                   ),
                   child: DropdownButtonFormField<String>(
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: 'Select Program',
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10.0),
-                    ),
-                    value: _programController.text,
-                    onChanged: (String? value) {
-                      setState(() {
-                        _programController.text = value ?? '';
-                      });
-                    },
-                    items: programOptions.map((String option) {
-                      return DropdownMenuItem<String>(
-                        value: option,
-                        child: Text(option,
-                            style: GoogleFonts.poppins(fontSize: 14.0)),
-                      );
-                    }).toList(),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please select a program';
-                      }
-                      return null;
-                    },
-                  ),
+  decoration: InputDecoration(
+    border: InputBorder.none,
+    hintText: 'Select Program',
+    contentPadding: EdgeInsets.symmetric(horizontal: 10.0),
+  ),
+  value: programOptions.contains(_programController.text) 
+      ? _programController.text 
+      : (programOptions.isNotEmpty ? programOptions.first : null),
+  onChanged: (String? value) {
+    setState(() {
+      _programController.text = value ?? '';
+    });
+  },
+  items: programOptions.map((String option) {
+    return DropdownMenuItem<String>(
+      value: option,
+      child: Text(option, style: GoogleFonts.poppins(fontSize: 14.0)),
+    );
+  }).toList(),
+  validator: (value) {
+    if (value == null || value.isEmpty) {
+      return 'Please select a program';
+    }
+    return null;
+  },
+)
                 ),
               ),
             ],
