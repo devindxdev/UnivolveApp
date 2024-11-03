@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="images/cover.png" width="100%"/>
+  <img src="https://github.com/Singh-Gursahib/UniversityApp_Univolve/raw/main/images/cover.png" width="100%"/>
 </p>
 
 
@@ -16,35 +16,35 @@
 
 <table>
 <tr>
-<td><img src="images/onboarding.png" width="300"/></td>
+<td><img src="https://github.com/Singh-Gursahib/UniversityApp_Univolve/raw/main/images/onboarding.png" width="300"/></td>
 <td><strong>Intuitive Onboarding Screens:</strong> Easy to navigate onboarding process to get you started quickly.</td>
 </tr>
 <tr>
-<td><img src="images/home.png" width="300"/></td>
+<td><img src="https://github.com/Singh-Gursahib/UniversityApp_Univolve/raw/main/images/home.png" width="300"/></td>
 <td><strong>Personalized Home Screen with AI Integration:</strong> Custom home screen that adapts to your academic and social preferences.</td>
 </tr>
 <tr>
-<td><img src="images/events.png" width="300"/></td>
+<td><img src="https://github.com/Singh-Gursahib/UniversityApp_Univolve/raw/main/images/events.png" width="300"/></td>
 <td><strong>Events Page:</strong> Utilizes web scraping to gather event information and AI integration for querying event details, featuring a sleek glassmorphism design.</td>
 </tr>
 <tr>
-<td><img src="images/drawer.png" width="300"/></td>
+<td><img src="https://github.com/Singh-Gursahib/UniversityApp_Univolve/raw/main/images/drawer.png" width="300"/></td>
 <td><strong>Drawer:</strong> Provides quick access to important TRU links and resources, all in one convenient location.</td>
 </tr>
 <tr>
-<td><img src="images/profile.png" width="300"/></td>
+<td><img src="https://github.com/Singh-Gursahib/UniversityApp_Univolve/raw/main/images/profile.png" width="300"/></td>
 <td><strong>Profile Page:</strong> Create a detailed profile with your photo, bio, and academic interests. Share a QR code to connect with peers and customize your profile with ease.</td>
 </tr>
 <tr>
-<td><img src="images/edit_profile.png" width="300"/></td>
+<td><img src="https://github.com/Singh-Gursahib/UniversityApp_Univolve/raw/main/images/edit_profile.png" width="300"/></td>
 <td><strong>Customizing Your Profile:</strong> Simple UI to select and manage courses via a dropdown menu.</td>
 </tr>
 <tr>
-<td><img src="images/chat.png" width="300"/></td>
+<td><img src="https://github.com/Singh-Gursahib/UniversityApp_Univolve/raw/main/images/chat.png" width="300"/></td>
 <td><strong>Chat Page:</strong> Engage in personal conversations, receive notifications for new messages, and see the last message along with timestamps.</td>
 </tr>
 <tr>
-<td><img src="images/group_chat.png" width="300"/></td>
+<td><img src="https://github.com/Singh-Gursahib/UniversityApp_Univolve/raw/main/images/group_chat.png" width="300"/></td>
 <td><strong>Course Group Integration:</strong> Join group conversations for your courses, send messages, and participate anonymously if desired.</td>
 </tr>
 </table>
@@ -60,7 +60,7 @@
 
 <table>
 <tr>
-<td><img src="images/authscreens.png" width="300"/></td>
+<td><img src="https://github.com/Singh-Gursahib/UniversityApp_Univolve/raw/main/images/authscreens.png" width="300"/></td>
 <td>
 <ul>
 <li><strong>Login and Register Screens:</strong> Smooth and secure login process.</li>
@@ -73,11 +73,11 @@
 
 ## The Why
 
-This project was developed as a submission for the Mobile Development 1 course at Thompson Rivers University, under the guidance of [Prof. Jaspreet Kaur](https://www.linkedin.com/in/dr-jaspreet-kaur-6a70a5220/). Throughout the development process, we utilized a diverse array of technologies and tools including Flutter, Firebase, Figma, and GitHub, along with various libraries that enhanced our application's functionality. We applied many of the concepts learned in the course, which significantly contributed to our comprehensive understanding and skill enhancement.
+This project was developed as a submission for the Mobile Development course at Thompson Rivers University, under the guidance of [Prof. Jaspreet Kaur](https://www.linkedin.com/in/dr-jaspreet-kaur-6a70a5220/). Throughout the development process, we utilized a diverse array of technologies and tools including Flutter, Firebase, Figma, and GitHub, along with various libraries that enhanced our application's functionality. We applied many of the concepts learned in the course, which significantly contributed to our comprehensive understanding and skill enhancement.
 
 Made by:
-- [Gursahib Singh](https://github.com/Singh-Gursahib)
 - [Devind Dev](https://www.linkedin.com/in/devindxdev/)
+- [Gursahib Singh](https://github.com/Singh-Gursahib)
 - [Yangzi Pasang Sherpa](https://www.linkedin.com/in/pasang-sherpa-012a5a2b1/)
 - [Jimil Hingu](https://www.linkedin.com/in/jimil-hingu-403b54276/)
 - [Behzad Ramezani](https://www.linkedin.com/in/behzad-ramezani/)
